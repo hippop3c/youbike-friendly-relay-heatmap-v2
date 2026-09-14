@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="雙北友愛接力逐日熱力圖 V2，可複選日期並以含零日的算術平均比較滿借、空還、調出、綁車、調入與解綁車。">
+  <title>雙北友愛接力逐日熱力圖 V2</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="app.css?v=20260914-v2">
+</head>
+<body>
+  <div class="loading" id="loading" role="status" aria-live="polite">
+    <div class="loading-card"><span class="spinner"></span><strong id="loadingText">載入逐日資料…</strong></div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">Y</div>
+      <div><h1>友愛接力逐日熱力圖 <em>V2</em></h1><p>雙北場站 · 半小時 · 多日平均</p></div>
+    </div>
+    <div class="header-actions">
+      <label class="station-search">
+        <span class="sr-only">搜尋場站</span>
+        <input id="stationSearch" type="search" autocomplete="off" placeholder="搜尋場站名稱或代碼">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+      </label>
+      <button class="outline-button" id="resetButton" type="button">重設篩選</button>
+    </div>
+  </header>
+
+  <section class="filterbar" aria-label="熱力圖篩選條件">
+    <label class="control compact">
+      <span>月份</span>
+      <select id="monthSelect"><option>載入中</option></select>
+    </label>
+
+    <details class="multi control" id="dateControl">
+      <summary><span>日期（可複選）</span><b id="dateSummary">載入中</b></summary>
+      <div class="menu wide">
+        <div class="menu-actions">
+          <button type="button" data-date-action="all">全選</button>
+          <button type="button" data-date-action="weekday">僅平日</button>
+          <button type="button" data-date-action="holiday">僅假日</button>
+          <button type="button" data-date-action="none">清除</button>
+        </div>
+        <div class="date-grid" id="dateOptions"></div>
+      </div>
+    </details>
+
+    <details class="multi control">
+      <summary><span>平假日</span><b id="daySummary">平日</b></summary>
+      <div class="menu" id="dayOptions"></div>
+    </details>
+
+    <details class="multi control">
+      <summary><span>縣市</span><b id="citySummary">雙北</b></summary>
+      <div class="menu" id="cityOptions"></div>
+    </details>
+
+    <details class="multi control">
+      <summary><span>行政區</span><b id="districtSummary">全部</b></summary>
+      <div class="menu scroll-menu" id="districtOptions"></div>
+    </details>
+
+    <details class="multi control">
+      <summary><span>ABC 級</span><b id="gradeSummary">ABC</b></summary>
+      <div class="menu" id="gradeOptions"></div>
+    </details>
+
+    <details class="multi control metrics-control">
+      <summary><span>顯示指標</span><b id="metricSummary">4 項調度</b></summary>
+      <div class="menu metric-menu" id="metricOptions"></div>
+    </details>
+
+    <label class="control compact">
+      <span>平日日均用量</span>
+      <span class="number-field"><small>大於</small><input id="usageThreshold" type="number" min="-1" max="3000" step="10" value="100"><small>次</small></span>
+    </label>
+  </section>
+
+  <section class="timebar">
+    <button id="playButton" class="play-button" type="button" aria-label="播放時段">▶</button>
+    <div class="time-copy"><span>目前時段</span><strong id="slotLabel">08:00–08:29</strong></div>
+    <input id="slotRange" type="range" min="0" max="47" value="16" step="1" aria-label="每半小時時段">
+    <div class="selection-copy" id="selectionCopy">—</div>
+  </section>
+
+  <main class="workspace">
+    <section class="map-panel">
+      <div id="map" aria-label="雙北友愛接力與調度熱力圖"></div>
+      <div class="map-kpis" id="mapKpis"></div>
+      <div class="legend-card">
+        <div class="legend-head"><strong>圖例</strong><span>圓點大小＝數值</span></div>
+        <div id="legendItems" class="legend-items"></div>
+        <p>多日複選：未發生視為 0，再除以選取日期數。</p>
+      </div>
+    </section>
+
+    <aside class="detail-panel" aria-label="逐日明細">
+      <div class="detail-head">
+        <div><p class="eyebrow">DAILY DETAIL</p><h2>逐日明細</h2></div>
+        <button class="download-button" id="downloadButton" type="button">下載 CSV</button>
+      </div>
+      <div class="detail-stats">
+        <div><span>有效日期</span><strong id="dateCount">0</strong></div>
+        <div><span>符合場站</span><strong id="stationCount">0</strong></div>
+        <div><span>明細筆數</span><strong id="rowCount">0</strong></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>日期</th><th>場站</th><th>級別</th><th>滿借</th><th>空還</th><th>調出</th><th>綁車</th><th>調入</th><th>解綁車</th>
+          </tr></thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="prevPage" type="button">上一頁</button>
+        <span id="pageText">第 1 / 1 頁</span>
+        <button id="nextPage" type="button">下一頁</button>
+      </div>
+      <p class="method-note">滿借／空還為行動電話會員唯一訂單次數；四項調度各自獨立，採同站、同日、同半小時、同動作的單筆最大車輛數。</p>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="months.js?v=20260914-v2"></script>
+  <script src="app.js?v=20260914-v2"></script>
+</body>
+</html>

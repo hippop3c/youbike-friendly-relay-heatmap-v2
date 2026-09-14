@@ -1,0 +1,30 @@
+window.YOUBIKE_HEATMAP_MONTHS={
+  version:"20260914-v2-daily",
+  defaultMonth:"2026-09",
+  months:[
+    {
+      id:"2026-07",
+      label:"2026年7月",
+      src:"data.js",
+      dailySrc:"data/daily-2026-07.js",
+      revision:"20260811-v6",
+      partial:false
+    },
+    {
+      id:"2026-08",
+      label:"2026年8月",
+      src:"data/heatmap-2026-08.js",
+      dailySrc:"data/daily-2026-08.js",
+      revision:"0272492f9942",
+      partial:false
+    },
+    {
+      id:"2026-09",
+      label:"2026年9月，截至9/8",
+      src:"data/heatmap-2026-09.js",
+      dailySrc:"data/daily-2026-09.js",
+      revision:"845529278dc1",
+      partial:true
+    }
+  ]
+};
