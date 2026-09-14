@@ -1,12 +1,12 @@
 {
-  "version": "v2",
-  "generatedAt": "2026-09-14T13:56:32+08:00",
+  "version": "v3",
+  "generatedAt": "2026-09-14T15:51:36+08:00",
   "outputs": [
     {
       "month": "2026-07",
       "output": "C:\\Users\\user\\Documents\\調度相關\\youbike-friendly-relay-heatmap-v2\\dist\\data\\daily-2026-07.js",
-      "bytes": 12132402,
-      "sha256": "48516d6607830b589545d3e28553254e5eb5ae203b6055c8da5c2a838a866918",
+      "bytes": 12132425,
+      "sha256": "848f72e6e633b1192b9628a4378947ed6e2100f130169dba1f85f78cd229c49c",
       "dates": 29,
       "cells": 644977,
       "rows": 644977
@@ -14,8 +14,8 @@
     {
       "month": "2026-08",
       "output": "C:\\Users\\user\\Documents\\調度相關\\youbike-friendly-relay-heatmap-v2\\dist\\data\\daily-2026-08.js",
-      "bytes": 11899479,
-      "sha256": "2b60ff0ee32ecf77f8f9ce6067cf68fe512f2f54f20abb0a39d41d5edb246a95",
+      "bytes": 11899502,
+      "sha256": "a6a345d81866ad15de2f128da11ceeba671d92371e6caa90bd1e9c74803e7783",
       "dates": 31,
       "cells": 632000,
       "rows": 632000
@@ -23,11 +23,11 @@
     {
       "month": "2026-09",
       "output": "C:\\Users\\user\\Documents\\調度相關\\youbike-friendly-relay-heatmap-v2\\dist\\data\\daily-2026-09.js",
-      "bytes": 2639005,
-      "sha256": "66572488043c00272d621e4656898ebbee2c5658415703872daaed5e6c3f43a0",
-      "dates": 8,
-      "cells": 139871,
-      "rows": 139871
+      "bytes": 4713700,
+      "sha256": "d302c83225e2583f08b9b054aee46619581fa9a7aac6b9522a38647543539f9c",
+      "dates": 13,
+      "cells": 250043,
+      "rows": 250043
     }
   ],
   "rewardSources": [
@@ -510,6 +510,106 @@
       "file": "taipei_full_borrow_2026-09-06_2026-09-08.csv",
       "rows": 14265,
       "bytes": 2365857
+    },
+    {
+      "file": "newtaipei_empty_return_2026-08-31_2026-09-02.csv",
+      "rows": 31650,
+      "bytes": 5085949
+    },
+    {
+      "file": "newtaipei_empty_return_2026-09-03_2026-09-05.csv",
+      "rows": 9761,
+      "bytes": 1567695
+    },
+    {
+      "file": "newtaipei_empty_return_2026-09-06_2026-09-08.csv",
+      "rows": 26936,
+      "bytes": 4342634
+    },
+    {
+      "file": "newtaipei_empty_return_2026-09-09_2026-09-11.csv",
+      "rows": 29318,
+      "bytes": 4716912
+    },
+    {
+      "file": "newtaipei_empty_return_2026-09-12_2026-09-13.csv",
+      "rows": 15129,
+      "bytes": 2429675
+    },
+    {
+      "file": "newtaipei_full_borrow_2026-08-31_2026-09-02.csv",
+      "rows": 2515,
+      "bytes": 409663
+    },
+    {
+      "file": "newtaipei_full_borrow_2026-09-03_2026-09-05.csv",
+      "rows": 1367,
+      "bytes": 223526
+    },
+    {
+      "file": "newtaipei_full_borrow_2026-09-06_2026-09-08.csv",
+      "rows": 2336,
+      "bytes": 379898
+    },
+    {
+      "file": "newtaipei_full_borrow_2026-09-09_2026-09-11.csv",
+      "rows": 2848,
+      "bytes": 465198
+    },
+    {
+      "file": "newtaipei_full_borrow_2026-09-12_2026-09-13.csv",
+      "rows": 1955,
+      "bytes": 317756
+    },
+    {
+      "file": "taipei_empty_return_2026-08-31_2026-09-02.csv",
+      "rows": 52601,
+      "bytes": 8650608
+    },
+    {
+      "file": "taipei_empty_return_2026-09-03_2026-09-05.csv",
+      "rows": 13615,
+      "bytes": 2244328
+    },
+    {
+      "file": "taipei_empty_return_2026-09-06_2026-09-08.csv",
+      "rows": 50870,
+      "bytes": 8388557
+    },
+    {
+      "file": "taipei_empty_return_2026-09-09_2026-09-11.csv",
+      "rows": 57307,
+      "bytes": 9451612
+    },
+    {
+      "file": "taipei_empty_return_2026-09-12_2026-09-13.csv",
+      "rows": 22773,
+      "bytes": 3744363
+    },
+    {
+      "file": "taipei_full_borrow_2026-08-31_2026-09-02.csv",
+      "rows": 17172,
+      "bytes": 2846051
+    },
+    {
+      "file": "taipei_full_borrow_2026-09-03_2026-09-05.csv",
+      "rows": 6293,
+      "bytes": 1043225
+    },
+    {
+      "file": "taipei_full_borrow_2026-09-06_2026-09-08.csv",
+      "rows": 14265,
+      "bytes": 2365857
+    },
+    {
+      "file": "taipei_full_borrow_2026-09-09_2026-09-11.csv",
+      "rows": 15630,
+      "bytes": 2589795
+    },
+    {
+      "file": "taipei_full_borrow_2026-09-12_2026-09-13.csv",
+      "rows": 11234,
+      "bytes": 1863459
     }
   ],
   "vdsSources": [
@@ -566,30 +666,30 @@
       "bytes": 10976014
     },
     {
-      "file": "vds_task_taipei_2026-09-01_08.xlsx",
+      "file": "vds_task_taipei_2026-09-01_13.xlsx",
       "month": "2026-09",
       "schema": "staff-info",
       "counts": {
-        "sourceRows": 33408,
-        "調出": 8299,
-        "調入": 10051,
-        "綁車": 5129,
-        "解綁車": 5565
+        "sourceRows": 56032,
+        "調出": 13740,
+        "調入": 16800,
+        "綁車": 8615,
+        "解綁車": 9441
       },
-      "bytes": 2297094
+      "bytes": 3849526
     },
     {
-      "file": "vds_task_newtaipei_2026-09-01_08.xlsx",
+      "file": "vds_task_newtaipei_2026-09-01_13.xlsx",
       "month": "2026-09",
       "schema": "staff-info",
       "counts": {
-        "sourceRows": 37273,
-        "調出": 9410,
-        "調入": 11117,
-        "解綁車": 6719,
-        "綁車": 5981
+        "sourceRows": 64087,
+        "調出": 16176,
+        "綁車": 10330,
+        "解綁車": 11654,
+        "調入": 18822
       },
-      "bytes": 2574128
+      "bytes": 4416010
     }
   ]
 }

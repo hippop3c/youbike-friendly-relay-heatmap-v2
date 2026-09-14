@@ -127,14 +127,14 @@ def month_configs(workspace: Path, source_root: Path) -> dict[str, dict[str, Any
             ],
         },
         "2026-09": {
-            "payload": workspace / "youbike-hourly-heatmap" / "data" / "heatmap-2026-09.js",
+            "payload": Path(__file__).resolve().parents[1] / "dist" / "data" / "heatmap-2026-09.js",
             "start": dt.date(2026, 9, 1),
-            "end": dt.date(2026, 9, 8),
+            "end": dt.date(2026, 9, 13),
             "excluded": set(),
-            "reward_dirs": [source_root / "raw_2026-08_09"],
+            "reward_dirs": [source_root / "v3_2026-09-13" / "reward"],
             "vds": [
-                source_root / "vds_raw_v7" / "vds_task_taipei_2026-09-01_08.xlsx",
-                source_root / "vds_raw_v7" / "vds_task_newtaipei_2026-09-01_08.xlsx",
+                source_root / "v3_2026-09-13" / "vds" / "vds_task_taipei_2026-09-01_13.xlsx",
+                source_root / "v3_2026-09-13" / "vds" / "vds_task_newtaipei_2026-09-01_13.xlsx",
             ],
         },
     }
@@ -402,7 +402,7 @@ def serialize_month(
 
     payload = roster["payload"]
     output = {
-        "version": "v2",
+        "version": "v3" if month == "2026-09" else "v2",
         "month": month,
         "metrics": list(METRICS),
         "dates": [
@@ -514,7 +514,7 @@ def main() -> None:
             )
         )
     summary = {
-        "version": "v2",
+        "version": "v3",
         "generatedAt": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
         "outputs": outputs,
         "rewardSources": reward_audit["files"],

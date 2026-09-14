@@ -16,6 +16,12 @@
     "見位率": "#52677f"
   };
   const DEFAULT_METRICS = ["調出", "綁車", "調入", "解綁車"];
+  const COVERAGE_PAIRS = [
+    { action: "調出", event: "滿借", actionIndex: 2, eventIndex: 0, ring: "paired-full" },
+    { action: "綁車", event: "滿借", actionIndex: 3, eventIndex: 0, ring: "paired-full" },
+    { action: "調入", event: "空還", actionIndex: 4, eventIndex: 1, ring: "paired-empty" },
+    { action: "解綁車", event: "空還", actionIndex: 5, eventIndex: 1, ring: "paired-empty" }
+  ];
   const PAGE_SIZE = 100;
   const state = {
     month: MONTHS?.defaultMonth || "2026-09",
@@ -221,6 +227,40 @@
     return { sums, denominator, byDate };
   }
 
+  function buildCoverage(filtered, dateItems, byDate) {
+    const filteredSet = new Set(filtered);
+    const summary = Object.fromEntries(COVERAGE_PAIRS.map(({ action }) => [action, { covered: 0, event: 0, action: 0 }]));
+    const stationStats = new Map();
+    for (const item of dateItems) {
+      const dateMap = byDate.get(item.index) || new Map();
+      for (const [stationIndex, values] of dateMap) {
+        if (!filteredSet.has(stationIndex)) continue;
+        let pairs = stationStats.get(stationIndex);
+        if (!pairs) {
+          pairs = Object.fromEntries(COVERAGE_PAIRS.map(({ action }) => [action, { covered: 0, event: 0, action: 0 }]));
+          stationStats.set(stationIndex, pairs);
+        }
+        for (const pair of COVERAGE_PAIRS) {
+          const eventPresent = Number(values[pair.eventIndex] || 0) > 0;
+          const actionPresent = Number(values[pair.actionIndex] || 0) > 0;
+          if (eventPresent) {
+            summary[pair.action].event += 1;
+            pairs[pair.action].event += 1;
+          }
+          if (actionPresent) {
+            summary[pair.action].action += 1;
+            pairs[pair.action].action += 1;
+          }
+          if (eventPresent && actionPresent) {
+            summary[pair.action].covered += 1;
+            pairs[pair.action].covered += 1;
+          }
+        }
+      }
+    }
+    return { summary, stations: stationStats };
+  }
+
   function buildRates(dateItems) {
     const output = new Map();
     if (!monthData || !dateItems.length) return output;
@@ -256,25 +296,33 @@
     return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * q))] || 1;
   }
 
-  function markerIcon(metricValues, maxima, isFocus) {
+  function markerIcon(metricValues, maxima, isFocus, pairStats) {
     const visible = metricValues.filter((item) => Number.isFinite(item.value) && item.value > 0);
     const dots = visible.map(({ metric, value }) => {
       const maximum = metric.includes("率") ? 100 : maxima.get(metric) || 1;
       const size = Math.round(8 + 16 * Math.sqrt(Math.min(1, value / maximum)));
       const rateClass = metric.includes("率") ? " glyph-rate" : "";
-      return `<i class="glyph-dot${rateClass}" title="${metric} ${fmt.format(value)}" style="width:${size}px;height:${size}px;background:${COLORS[metric]};border-color:${metric.includes("率") ? COLORS[metric] : "rgba(255,255,255,.92)"}"></i>`;
+      const pair = COVERAGE_PAIRS.find((item) => item.action === metric);
+      const paired = pair && pairStats?.[metric]?.covered > 0 ? ` ${pair.ring}` : "";
+      const pairTitle = paired ? `；同站覆蓋 ${pairStats[metric].covered}/${pairStats[metric].event} 日` : "";
+      return `<i class="glyph-dot${rateClass}${paired}" title="${metric} ${fmt.format(value)}${pairTitle}" style="width:${size}px;height:${size}px;background:${COLORS[metric]};border-color:${metric.includes("率") ? COLORS[metric] : "rgba(255,255,255,.92)"}"></i>`;
     }).join("");
     const columns = visible.length === 1 ? "single" : "";
     const side = visible.length <= 1 ? 28 : visible.length <= 4 ? 48 : 60;
     return L.divIcon({ className: "", html: `<div class="station-glyph ${columns} ${isFocus ? "focus" : ""}">${dots}</div>`, iconSize: [side, side], iconAnchor: [side / 2, side / 2] });
   }
 
-  function popupHtml(station, metricValues, dateCount) {
+  function popupHtml(station, metricValues, dateCount, pairStats) {
     const rows = metricValues.map(({ metric, value }) => `<span><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${COLORS[metric]};margin-right:6px"></i>${metric}</span><b>${value == null ? "—" : `${fmt.format(value)}${metric.includes("率") ? "%" : ""}`}</b>`).join("");
-    return `<div class="popup-title">${safeText(station.name)}</div><div class="popup-meta">${safeText(station.city)} ${safeText(station.district)} · ${safeText(station.code)} · ${station.grade}級 · 日均 ${fmt.format(station.usage)}</div><div class="popup-grid">${rows}</div><div class="popup-meta" style="margin:9px 0 0">活動值為 ${dateCount} 日含零平均；率值為月別平假日參考值。</div>`;
+    const pairRows = COVERAGE_PAIRS.map((pair) => {
+      const stats = pairStats?.[pair.action] || { covered: 0, event: 0 };
+      const percent = stats.event ? `${fmtOne.format(stats.covered / stats.event * 100)}%` : "—";
+      return `<span><em>${pair.event}＋${pair.action === "解綁車" ? "解車" : pair.action}</em><b>${stats.covered}/${stats.event} 站日 · ${percent}</b></span>`;
+    }).join("");
+    return `<div class="popup-title">${safeText(station.name)}</div><div class="popup-meta">${safeText(station.city)} ${safeText(station.district)} · ${safeText(station.code)} · ${station.grade}級 · 日均 ${fmt.format(station.usage)}</div><div class="popup-grid">${rows}</div><div class="popup-pairs">${pairRows}</div><div class="popup-meta" style="margin:9px 0 0">活動值為 ${dateCount} 日含零平均；覆蓋按同站、同日、同半小時計算。</div>`;
   }
 
-  function renderMap(filtered, dateItems, activity, rates, selectedMetrics) {
+  function renderMap(filtered, dateItems, activity, rates, selectedMetrics, coverage) {
     markerLayer.clearLayers();
     const valuesByStation = new Map();
     const samples = new Map(selectedMetrics.map((metric) => [metric, []]));
@@ -291,8 +339,9 @@
       const values = valuesByStation.get(stationIndex);
       if (!values.some((item) => Number.isFinite(item.value) && item.value > 0)) continue;
       const focus = Boolean(query && `${station.name} ${station.code}`.toLocaleLowerCase("zh-Hant").includes(query));
-      L.marker([station.lat, station.lng], { icon: markerIcon(values, maxima, focus), riseOnHover: true })
-        .bindPopup(popupHtml(station, values, dateItems.length))
+      const pairStats = coverage.stations.get(stationIndex);
+      L.marker([station.lat, station.lng], { icon: markerIcon(values, maxima, focus, pairStats), riseOnHover: true })
+        .bindPopup(popupHtml(station, values, dateItems.length, pairStats))
         .addTo(markerLayer);
       plotted += 1;
     }
@@ -330,11 +379,14 @@
     $("legendItems").innerHTML = selectedMetrics.map((metric) => `<div class="legend-item" style="color:${COLORS[metric]}"><i class="legend-dot" style="background:${metric.includes("率") ? "transparent" : COLORS[metric]}"></i><span style="color:var(--ink)">${metric}${metric.includes("率") ? "（月別）" : ""}</span></div>`).join("") || `<span style="font-size:11px;color:var(--muted)">請至少選擇一項指標</span>`;
   }
 
-  function renderKpis(filtered, selectedMetrics, valuesByStation) {
-    const cards = selectedMetrics.slice(0, 6).map((metric) => {
-      const values = filtered.map((index) => valuesByStation.get(index)?.find((item) => item.metric === metric)?.value).filter(Number.isFinite);
-      const total = metric.includes("率") ? (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0) : values.reduce((sum, value) => sum + value, 0);
-      return `<div class="map-kpi"><span><i style="background:${COLORS[metric]}"></i>${metric}${metric.includes("率") ? "站均" : "平均總量"}</span><strong>${fmtOne.format(total)}${metric.includes("率") ? "%" : ""}</strong></div>`;
+  function renderCoverageKpis(coverage, dateItems) {
+    const dayCount = dateItems.length || 1;
+    const cards = COVERAGE_PAIRS.map((pair) => {
+      const stats = coverage.summary[pair.action];
+      const percent = stats.event ? `${fmtOne.format(stats.covered / stats.event * 100)}%` : "—";
+      const label = pair.action === "解綁車" ? "解車" : pair.action;
+      const noBase = stats.event ? "" : " no-base";
+      return `<div class="map-kpi${noBase}" title="${label}覆蓋率＝同站同日同時段同時發生${pair.event}與${label}的站數 ÷ ${pair.event}站數"><span><i style="background:${COLORS[pair.action]}"></i>${label}覆蓋率</span><strong>${percent}</strong><small>日均 ${fmtOne.format(stats.covered / dayCount)} / ${fmtOne.format(stats.event / dayCount)} 站</small></div>`;
     });
     $("mapKpis").innerHTML = cards.join("");
   }
@@ -366,13 +418,14 @@
     const selectedMetrics = checkedValues("metricOptions");
     const activity = buildActivity(dateItems);
     const rates = buildRates(dateItems);
-    const { plotted, valuesByStation } = renderMap(filtered, dateItems, activity, rates, selectedMetrics);
+    const coverage = buildCoverage(filtered, dateItems, activity.byDate);
+    const { plotted } = renderMap(filtered, dateItems, activity, rates, selectedMetrics, coverage);
     currentFilteredStations = filtered;
     currentDateMaps = activity.byDate;
     detailRows = buildDetailRows(filtered, dateItems, activity.byDate);
     renderDetail();
     renderLegend(selectedMetrics);
-    renderKpis(filtered, selectedMetrics, valuesByStation);
+    renderCoverageKpis(coverage, dateItems);
     updateSummaries(dateItems, filtered, selectedMetrics, plotted);
   }
 
@@ -452,6 +505,56 @@
     $("downloadButton").addEventListener("click", downloadCsv);
     $("prevPage").addEventListener("click", () => { state.page -= 1; renderDetail(); });
     $("nextPage").addEventListener("click", () => { state.page += 1; renderDetail(); });
+
+    const workspace = document.querySelector(".workspace");
+    const splitter = $("workspaceSplitter");
+    const mapPanel = document.querySelector(".map-panel");
+    const setDetailWidth = (width) => {
+      const bounds = workspace.getBoundingClientRect();
+      const style = getComputedStyle(workspace);
+      const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const contentWidth = bounds.width - horizontalPadding;
+      const splitterWidth = splitter.getBoundingClientRect().width;
+      const maximum = Math.max(340, Math.min(contentWidth * .65, contentWidth - 480 - splitterWidth));
+      const next = Math.max(340, Math.min(maximum, width));
+      workspace.style.setProperty("--detail-width", `${Math.round(next)}px`);
+      splitter.setAttribute("aria-valuemax", String(Math.round(maximum)));
+      splitter.setAttribute("aria-valuenow", String(Math.round(next)));
+    };
+    setDetailWidth($("detailPanel").getBoundingClientRect().width || 485);
+    splitter.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      splitter.setPointerCapture(event.pointerId);
+      splitter.classList.add("dragging");
+      document.body.classList.add("resizing");
+    });
+    splitter.addEventListener("pointermove", (event) => {
+      if (!splitter.hasPointerCapture(event.pointerId)) return;
+      const bounds = workspace.getBoundingClientRect();
+      setDetailWidth(bounds.right - event.clientX - 12);
+    });
+    const endResize = (event) => {
+      if (splitter.hasPointerCapture(event.pointerId)) splitter.releasePointerCapture(event.pointerId);
+      splitter.classList.remove("dragging");
+      document.body.classList.remove("resizing");
+      map.invalidateSize({ pan: false });
+    };
+    splitter.addEventListener("pointerup", endResize);
+    splitter.addEventListener("pointercancel", endResize);
+    splitter.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const current = $("detailPanel").getBoundingClientRect().width;
+      setDetailWidth(current + (event.key === "ArrowLeft" ? 24 : -24));
+      map.invalidateSize({ pan: false });
+    });
+    if (window.ResizeObserver) {
+      let resizeFrame = 0;
+      new ResizeObserver(() => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+      }).observe(mapPanel);
+    }
 
     $("playButton").addEventListener("click", () => {
       state.playing = !state.playing;

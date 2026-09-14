@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="雙北友愛接力逐日熱力圖 V2，可複選日期並以含零日的算術平均比較滿借、空還、調出、綁車、調入與解綁車。">
-  <title>雙北友愛接力逐日熱力圖 V2</title>
+  <meta name="description" content="雙北友愛接力逐日熱力圖 V3，可複選日期、判讀同站民眾與調度行為，並計算四類調度覆蓋率。">
+  <title>雙北友愛接力逐日熱力圖 V3</title>
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="app.css?v=20260914-v2">
+  <link rel="stylesheet" href="app.css?v=20260914-v3">
 </head>
 <body>
   <div class="loading" id="loading" role="status" aria-live="polite">
@@ -17,7 +17,7 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">Y</div>
-      <div><h1>友愛接力逐日熱力圖 <em>V2</em></h1><p>雙北場站 · 半小時 · 多日平均</p></div>
+      <div><h1>友愛接力逐日熱力圖 <em>V3</em></h1><p>雙北場站 · 半小時 · 同站覆蓋</p></div>
     </div>
     <div class="header-actions">
       <label class="station-search">
@@ -93,11 +93,15 @@
       <div class="legend-card">
         <div class="legend-head"><strong>圖例</strong><span>圓點大小＝數值</span></div>
         <div id="legendItems" class="legend-items"></div>
-        <p>多日複選：未發生視為 0，再除以選取日期數。</p>
+        <div class="pair-legend"><i class="pair-sample full-pair"></i><span>橘色外圈：同站同日同時段亦有滿借</span></div>
+        <div class="pair-legend"><i class="pair-sample empty-pair"></i><span>綠色外圈：同站同日同時段亦有空還</span></div>
+        <p>圓點填色代表所選指標；調度圓點的彩色外圈表示至少一個選取日同站共現。多日平均會把未發生值按 0 納入。</p>
       </div>
     </section>
 
-    <aside class="detail-panel" aria-label="逐日明細">
+    <div id="workspaceSplitter" class="workspace-splitter" role="separator" aria-label="調整地圖與明細寬度" aria-orientation="vertical" aria-controls="detailPanel" aria-valuemin="340" aria-valuenow="485" tabindex="0" title="左右拖曳可調整地圖與明細寬度"><span>⋮</span></div>
+
+    <aside class="detail-panel" id="detailPanel" aria-label="逐日明細">
       <div class="detail-head">
         <div><p class="eyebrow">DAILY DETAIL</p><h2>逐日明細</h2></div>
         <button class="download-button" id="downloadButton" type="button">下載 CSV</button>
@@ -127,7 +131,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="months.js?v=20260914-v2"></script>
-  <script src="app.js?v=20260914-v2"></script>
+  <script src="months.js?v=20260914-v3"></script>
+  <script src="app.js?v=20260914-v3"></script>
 </body>
 </html>
