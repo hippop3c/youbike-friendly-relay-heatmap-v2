@@ -35,10 +35,13 @@
     page: 1,
     playing: false,
     playTimer: null,
-    query: ""
+    query: "",
+    detailMode: "station",
+    cardSuffix: ""
   };
   let monthData = null;
   let dailyData = null;
+  let cardData = null;
   let monthInfo = null;
   let stations = [];
   let detailRows = [];
@@ -112,6 +115,10 @@
     return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
   }
 
+  function normalizeCardSuffix(value) {
+    return String(value ?? "").normalize("NFKC").replace(/[^0-9A-Za-z]/g, "").toUpperCase().slice(-5);
+  }
+
   function loadScript(src, key) {
     document.querySelectorAll(`script[data-data-key="${key}"]`).forEach((node) => node.remove());
     return new Promise((resolve, reject) => {
@@ -122,6 +129,33 @@
       script.onerror = () => reject(new Error(`無法載入 ${src}`));
       document.head.appendChild(script);
     });
+  }
+
+  async function loadCardData() {
+    if (cardData?.month === state.month) return cardData;
+    if (!monthInfo?.cardSrc) throw new Error("本月沒有卡號每日統計");
+    window.YOUBIKE_CARD_DAILY = undefined;
+    await loadScript(monthInfo.cardSrc, "cards");
+    const loaded = window.YOUBIKE_CARD_DAILY;
+    if (!loaded || loaded.month !== state.month || !loaded.cards || !Array.isArray(loaded.dates)) throw new Error("卡號每日統計格式錯誤");
+    cardData = loaded;
+    return cardData;
+  }
+
+  async function ensureCardData() {
+    if (cardData?.month === state.month) return true;
+    showLoading("載入卡號每日統計…");
+    try {
+      await loadCardData();
+      renderCardTracker();
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast(`載入失敗：${error.message}`);
+      return false;
+    } finally {
+      hideLoading();
+    }
   }
 
   function checkedValues(containerId) {
@@ -168,6 +202,7 @@
     showLoading("載入月別與逐日資料…");
     state.month = monthId;
     state.page = 1;
+    cardData = null;
     monthInfo = MONTHS.months.find((item) => item.id === monthId) || MONTHS.months[0];
     try {
       window.YOUBIKE_HEATMAP_DATA = undefined;
@@ -178,6 +213,7 @@
       await loadScript(monthInfo.dailySrc, "daily");
       dailyData = window.YOUBIKE_DAILY_V2;
       if (!dailyData || dailyData.month !== monthId) throw new Error("逐日資料格式錯誤");
+      if (state.detailMode === "card") await loadCardData();
       stations = monthData.stations.map((row, index) => {
         const usageValue = monthData.dailyUsage?.[index];
         const usage = typeof usageValue === "number" && Number.isFinite(usageValue) ? usageValue : null;
@@ -408,6 +444,75 @@
     $("nextPage").disabled = state.page >= pages;
   }
 
+  function showCardPrompt(message) {
+    $("cardPrompt").textContent = message;
+    $("cardPrompt").classList.remove("hidden");
+    $("cardResult").classList.add("hidden");
+  }
+
+  function renderCardTracker() {
+    if (state.detailMode !== "card" || !dailyData) return;
+    const suffix = normalizeCardSuffix(state.cardSuffix);
+    if (suffix.length !== 5) {
+      showCardPrompt("輸入外觀卡號後五碼，即可查看本月逐日次數。");
+      return;
+    }
+    if (!cardData || cardData.month !== state.month) {
+      showCardPrompt("正在載入本月卡號每日統計…");
+      return;
+    }
+    const record = Object.prototype.hasOwnProperty.call(cardData.cards, suffix) ? cardData.cards[suffix] : null;
+    if (!record) {
+      showCardPrompt(`本月找不到尾碼 ${suffix} 的友愛接力紀錄。`);
+      return;
+    }
+    const countsByDate = new Map((record.d || []).map(([dateIndex, fullCount, emptyCount]) => [cardData.dates[dateIndex], [Number(fullCount || 0), Number(emptyCount || 0)]]));
+    const dateItems = effectiveDateIndices();
+    let fullTotal = 0;
+    let emptyTotal = 0;
+    const rows = dateItems.map((date) => {
+      const [fullCount, emptyCount] = countsByDate.get(date.date) || [0, 0];
+      fullTotal += fullCount;
+      emptyTotal += emptyCount;
+      return `<tr><td>${date.date.slice(5)}</td><td>${safeText(date.weekday)}</td><td class="${fullCount ? "" : "zero"}">${fmt.format(fullCount)}</td><td class="${emptyCount ? "" : "zero"}">${fmt.format(emptyCount)}</td><td>${fmt.format(fullCount + emptyCount)}</td></tr>`;
+    });
+    $("cardSuffixLabel").textContent = suffix;
+    $("cardDateRange").textContent = dateItems.length ? `目前篩選 ${dateItems.length} 日` : "目前篩選 0 日";
+    $("cardFullTotal").textContent = fmt.format(fullTotal);
+    $("cardEmptyTotal").textContent = fmt.format(emptyTotal);
+    $("cardGrandTotal").textContent = fmt.format(fullTotal + emptyTotal);
+    $("cardBody").innerHTML = rows.join("") || '<tr><td colspan="5" class="zero" style="text-align:center">目前日期與平假日篩選沒有有效日期</td></tr>';
+    const collisionCount = Number(record.n || 1);
+    if (collisionCount > 1) {
+      $("cardCollision").textContent = `此後五碼在本月對應 ${fmt.format(collisionCount)} 張不同完整卡；以下為合併合計，不能視為單一卡片紀錄。`;
+      $("cardCollision").classList.remove("hidden");
+    } else {
+      $("cardCollision").textContent = "";
+      $("cardCollision").classList.add("hidden");
+    }
+    $("cardPrompt").classList.add("hidden");
+    $("cardResult").classList.remove("hidden");
+  }
+
+  async function setDetailMode(mode) {
+    const cardMode = mode === "card";
+    state.detailMode = cardMode ? "card" : "station";
+    $("stationTab").classList.toggle("active", !cardMode);
+    $("cardTab").classList.toggle("active", cardMode);
+    $("stationTab").setAttribute("aria-selected", String(!cardMode));
+    $("cardTab").setAttribute("aria-selected", String(cardMode));
+    $("stationView").classList.toggle("hidden", cardMode);
+    $("cardView").classList.toggle("hidden", !cardMode);
+    $("downloadButton").classList.toggle("hidden", cardMode);
+    $("detailEyebrow").textContent = cardMode ? "CARD DAILY" : "DAILY DETAIL";
+    $("detailTitle").textContent = cardMode ? "卡號逐日追蹤" : "逐日明細";
+    if (cardMode) {
+      renderCardTracker();
+      await ensureCardData();
+      $("cardSuffixInput").focus();
+    }
+  }
+
   function renderLegend(selectedMetrics) {
     $("legendItems").innerHTML = selectedMetrics.map((metric) => `<div class="legend-item" style="color:${COLORS[metric]}"><i class="legend-dot" style="background:${metric.includes("率") ? "transparent" : COLORS[metric]}"></i><span style="color:var(--ink)">${metric}${metric.includes("率") ? "（月別）" : ""}</span></div>`).join("") || `<span style="font-size:11px;color:var(--muted)">請至少選擇一項指標</span>`;
   }
@@ -457,6 +562,7 @@
     currentDateMaps = activity.byDate;
     detailRows = buildDetailRows(filtered, dateItems, activity.byDate);
     renderDetail();
+    renderCardTracker();
     renderLegend(selectedMetrics);
     renderCoverageKpis(coverage, dateItems);
     updateSummaries(dateItems, filtered, selectedMetrics, plotted);
@@ -527,6 +633,7 @@
       metrics: checkedValues("metricOptions"),
       usageThreshold: Number($("usageThreshold").value || 0),
       stationSearch: state.query,
+      detailMode: state.detailMode,
       effectiveDateCount: effectiveDateIndices().length,
       filteredStationCount: currentFilteredStations.length
     };
@@ -547,6 +654,22 @@
     $("stationSearch").addEventListener("input", (event) => { state.query = event.target.value; queueRefresh(true); });
     $("resetButton").addEventListener("click", resetFilters);
     $("downloadButton").addEventListener("click", downloadCsv);
+    $("stationTab").addEventListener("click", () => { void setDetailMode("station"); });
+    $("cardTab").addEventListener("click", () => { void setDetailMode("card"); });
+    $("cardSuffixInput").addEventListener("input", (event) => {
+      event.target.value = normalizeCardSuffix(event.target.value);
+    });
+    $("cardForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const suffix = normalizeCardSuffix($("cardSuffixInput").value);
+      $("cardSuffixInput").value = suffix;
+      state.cardSuffix = suffix;
+      if (suffix.length !== 5) {
+        showCardPrompt("請輸入完整的五碼卡號尾碼。");
+        return;
+      }
+      if (await ensureCardData()) renderCardTracker();
+    });
     $("prevPage").addEventListener("click", () => { state.page -= 1; renderDetail(); });
     $("nextPage").addEventListener("click", () => { state.page += 1; renderDetail(); });
 

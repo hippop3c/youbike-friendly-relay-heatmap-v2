@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="雙北友愛接力逐日熱力圖 V4，可複選日期，以同小時事件站集合與調度站集合交集計算覆蓋率。">
-  <title>雙北友愛接力逐日熱力圖 V4</title>
+  <meta name="description" content="雙北友愛接力逐日熱力圖 V5，可複選日期、查看調度覆蓋率，並以外觀卡號後五碼查詢每日滿借與空還次數。">
+  <title>雙北友愛接力逐日熱力圖 V5</title>
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="app.css?v=20260915-v4">
+  <link rel="stylesheet" href="app.css?v=20260915-v5">
 </head>
 <body>
   <div class="loading" id="loading" role="status" aria-live="polite">
@@ -17,7 +17,7 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">Y</div>
-      <div><h1>友愛接力逐日熱力圖 <em>V4</em></h1><p>雙北場站 · 事件站集合 ∩ 調度站集合</p></div>
+      <div><h1>友愛接力逐日熱力圖 <em>V5</em></h1><p>雙北場站 · 事件站集合 ∩ 調度站集合</p></div>
     </div>
     <div class="header-actions">
       <label class="station-search">
@@ -102,37 +102,67 @@
 
     <div id="workspaceSplitter" class="workspace-splitter" role="separator" aria-label="調整地圖與明細寬度" aria-orientation="vertical" aria-controls="detailPanel" aria-valuemin="340" aria-valuenow="485" tabindex="0" title="左右拖曳可調整地圖與明細寬度"><span>⋮</span></div>
 
-    <aside class="detail-panel" id="detailPanel" aria-label="逐日明細">
+    <aside class="detail-panel" id="detailPanel" aria-label="逐日明細與卡號追蹤">
       <div class="detail-head">
-        <div><p class="eyebrow">DAILY DETAIL</p><h2>逐日明細</h2></div>
+        <div><p class="eyebrow" id="detailEyebrow">DAILY DETAIL</p><h2 id="detailTitle">逐日明細</h2></div>
         <button class="download-button" id="downloadButton" type="button">下載 CSV</button>
       </div>
-      <div class="detail-stats">
-        <div><span>有效日期</span><strong id="dateCount">0</strong></div>
-        <div><span>符合場站</span><strong id="stationCount">0</strong></div>
-        <div><span>明細筆數</span><strong id="rowCount">0</strong></div>
+      <div class="detail-tabs" role="tablist" aria-label="明細模式">
+        <button class="active" id="stationTab" type="button" role="tab" aria-selected="true" aria-controls="stationView">場站明細</button>
+        <button id="cardTab" type="button" role="tab" aria-selected="false" aria-controls="cardView">卡號追蹤</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th>日期</th><th>場站</th><th>級別</th><th>滿借</th><th>空還</th><th>調出</th><th>綁車</th><th>調入</th><th>解綁車</th>
-          </tr></thead>
-          <tbody id="detailBody"></tbody>
-        </table>
+      <div class="detail-view station-view" id="stationView" role="tabpanel" aria-labelledby="stationTab">
+        <div class="detail-stats">
+          <div><span>有效日期</span><strong id="dateCount">0</strong></div>
+          <div><span>符合場站</span><strong id="stationCount">0</strong></div>
+          <div><span>明細筆數</span><strong id="rowCount">0</strong></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>日期</th><th>場站</th><th>級別</th><th>滿借</th><th>空還</th><th>調出</th><th>綁車</th><th>調入</th><th>解綁車</th>
+            </tr></thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button id="prevPage" type="button">上一頁</button>
+          <span id="pageText">第 1 / 1 頁</span>
+          <button id="nextPage" type="button">下一頁</button>
+        </div>
+        <p class="method-note">原始資料以半小時建置；選「每小時」時先合併兩個半小時，再依場站去重判斷事件與調度交集。</p>
       </div>
-      <div class="pagination">
-        <button id="prevPage" type="button">上一頁</button>
-        <span id="pageText">第 1 / 1 頁</span>
-        <button id="nextPage" type="button">下一頁</button>
+      <div class="detail-view card-view hidden" id="cardView" role="tabpanel" aria-labelledby="cardTab">
+        <form class="card-lookup" id="cardForm">
+          <label for="cardSuffixInput"><span>外觀卡號後五碼</span><input id="cardSuffixInput" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="輸入後五碼" aria-describedby="cardPrivacyNote"></label>
+          <button type="submit">查詢</button>
+        </form>
+        <p class="card-scope" id="cardPrivacyNote">只顯示每日滿借、空還合計；套用目前月份、日期與平假日篩選。</p>
+        <div class="card-prompt" id="cardPrompt">輸入外觀卡號後五碼，即可查看本月逐日次數。</div>
+        <section class="card-result hidden" id="cardResult" aria-live="polite">
+          <div class="card-result-head"><div><span>查詢尾碼</span><strong id="cardSuffixLabel">—</strong></div><small id="cardDateRange">—</small></div>
+          <div class="card-stats">
+            <div><span>滿借</span><strong id="cardFullTotal">0</strong></div>
+            <div><span>空還</span><strong id="cardEmptyTotal">0</strong></div>
+            <div><span>合計</span><strong id="cardGrandTotal">0</strong></div>
+          </div>
+          <p class="card-collision hidden" id="cardCollision"></p>
+          <div class="table-wrap card-table-wrap">
+            <table class="card-table">
+              <thead><tr><th>日期</th><th>星期</th><th>滿借</th><th>空還</th><th>合計</th></tr></thead>
+              <tbody id="cardBody"></tbody>
+            </table>
+          </div>
+          <p class="method-note card-note">後五碼相同的不同卡片會合併計算；完整卡號、帳號、訂單號、場站及時間戳未上傳。</p>
+        </section>
       </div>
-      <p class="method-note">原始資料以半小時建置；選「每小時」時先合併兩個半小時，再依場站去重判斷事件與調度交集。</p>
     </aside>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="months.js?v=20260915-v4"></script>
-  <script src="app.js?v=20260915-v4"></script>
+  <script src="months.js?v=20260915-v5"></script>
+  <script src="app.js?v=20260915-v5"></script>
 </body>
 </html>
