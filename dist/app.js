@@ -22,10 +22,16 @@
     { action: "調入", event: "空還", actionIndex: 4, eventIndex: 1, ring: "paired-empty" },
     { action: "解綁車", event: "空還", actionIndex: 5, eventIndex: 1, ring: "paired-empty" }
   ];
+  const COVERAGE_RULES = [
+    ...COVERAGE_PAIRS.map((pair) => ({ key: pair.action, label: pair.action === "解綁車" ? "解車" : pair.action, event: pair.event, eventIndex: pair.eventIndex, actionIndices: [pair.actionIndex], color: COLORS[pair.action] })),
+    { key: "調出＋綁車", label: "調出＋綁車", event: "滿借", eventIndex: 0, actionIndices: [2, 3], color: "#0d6f8f", combined: true },
+    { key: "調入＋解車", label: "調入＋解車", event: "空還", eventIndex: 1, actionIndices: [4, 5], color: "#9b3e8f", combined: true }
+  ];
   const PAGE_SIZE = 100;
   const state = {
     month: MONTHS?.defaultMonth || "2026-09",
-    slot: 16,
+    granularity: "hour",
+    slot: 8,
     page: 1,
     playing: false,
     playTimer: null,
@@ -68,13 +74,31 @@
   }
 
   function slotStart(slot) {
-    const hour = String(Math.floor(slot / 2)).padStart(2, "0");
-    return `${hour}:${slot % 2 ? "30" : "00"}`;
+    const hourValue = state.granularity === "hour" ? slot : Math.floor(slot / 2);
+    const hour = String(hourValue).padStart(2, "0");
+    return `${hour}:${state.granularity === "hour" || slot % 2 === 0 ? "00" : "30"}`;
   }
 
   function slotLabel(slot) {
-    const hour = String(Math.floor(slot / 2)).padStart(2, "0");
+    const hourValue = state.granularity === "hour" ? slot : Math.floor(slot / 2);
+    const hour = String(hourValue).padStart(2, "0");
+    if (state.granularity === "hour") return `${hour}:00–${hour}:59`;
     return `${slotStart(slot)}–${hour}:${slot % 2 ? "59" : "29"}`;
+  }
+
+  function selectedActivitySlots() {
+    return state.granularity === "hour" ? [state.slot * 2, state.slot * 2 + 1] : [state.slot];
+  }
+
+  function timeUnitText() {
+    return state.granularity === "hour" ? "同小時" : "同半小時";
+  }
+
+  function configureSlotRange() {
+    const range = $("slotRange");
+    range.max = state.granularity === "hour" ? "23" : "47";
+    range.value = String(state.slot);
+    range.setAttribute("aria-label", state.granularity === "hour" ? "每小時時段" : "每半小時時段");
   }
 
   function gradeFor(city, usage) {
@@ -155,8 +179,8 @@
       dailyData = window.YOUBIKE_DAILY_V2;
       if (!dailyData || dailyData.month !== monthId) throw new Error("逐日資料格式錯誤");
       stations = monthData.stations.map((row, index) => {
-        const usageValue = Number(monthData.dailyUsage?.[index]);
-        const usage = Number.isFinite(usageValue) ? usageValue : null;
+        const usageValue = monthData.dailyUsage?.[index];
+        const usage = typeof usageValue === "number" && Number.isFinite(usageValue) ? usageValue : null;
         return {
           index,
           name: row[0],
@@ -214,12 +238,17 @@
     const sums = new Float64Array(stations.length * ACTIVITY.length);
     const byDate = new Map();
     for (const item of dateItems) {
-      const bucket = dailyData.dailyActivity[item.index]?.[state.slot] || [];
       const mapForDate = new Map();
-      for (const row of bucket) {
-        const values = row.slice(1, 7);
-        mapForDate.set(row[0], values);
-        for (let metric = 0; metric < ACTIVITY.length; metric += 1) sums[row[0] * ACTIVITY.length + metric] += Number(values[metric] || 0);
+      for (const sourceSlot of selectedActivitySlots()) {
+        const bucket = dailyData.dailyActivity[item.index]?.[sourceSlot] || [];
+        for (const row of bucket) {
+          const values = mapForDate.get(row[0]) || [0, 0, 0, 0, 0, 0];
+          for (let metric = 0; metric < ACTIVITY.length; metric += 1) values[metric] += Number(row[metric + 1] || 0);
+          mapForDate.set(row[0], values);
+        }
+      }
+      for (const [stationIndex, values] of mapForDate) {
+        for (let metric = 0; metric < ACTIVITY.length; metric += 1) sums[stationIndex * ACTIVITY.length + metric] += values[metric];
       }
       byDate.set(item.index, mapForDate);
     }
@@ -229,7 +258,7 @@
 
   function buildCoverage(filtered, dateItems, byDate) {
     const filteredSet = new Set(filtered);
-    const summary = Object.fromEntries(COVERAGE_PAIRS.map(({ action }) => [action, { covered: 0, event: 0, action: 0 }]));
+    const summary = Object.fromEntries(COVERAGE_RULES.map(({ key }) => [key, { covered: 0, event: 0, action: 0 }]));
     const stationStats = new Map();
     for (const item of dateItems) {
       const dateMap = byDate.get(item.index) || new Map();
@@ -237,26 +266,29 @@
         if (!filteredSet.has(stationIndex)) continue;
         let pairs = stationStats.get(stationIndex);
         if (!pairs) {
-          pairs = Object.fromEntries(COVERAGE_PAIRS.map(({ action }) => [action, { covered: 0, event: 0, action: 0 }]));
+          pairs = Object.fromEntries(COVERAGE_RULES.map(({ key }) => [key, { covered: 0, event: 0, action: 0 }]));
           stationStats.set(stationIndex, pairs);
         }
-        for (const pair of COVERAGE_PAIRS) {
-          const eventPresent = Number(values[pair.eventIndex] || 0) > 0;
-          const actionPresent = Number(values[pair.actionIndex] || 0) > 0;
+        for (const rule of COVERAGE_RULES) {
+          const eventPresent = Number(values[rule.eventIndex] || 0) > 0;
+          const actionPresent = rule.actionIndices.some((index) => Number(values[index] || 0) > 0);
           if (eventPresent) {
-            summary[pair.action].event += 1;
-            pairs[pair.action].event += 1;
+            summary[rule.key].event += 1;
+            pairs[rule.key].event += 1;
           }
           if (actionPresent) {
-            summary[pair.action].action += 1;
-            pairs[pair.action].action += 1;
+            summary[rule.key].action += 1;
+            pairs[rule.key].action += 1;
           }
           if (eventPresent && actionPresent) {
-            summary[pair.action].covered += 1;
-            pairs[pair.action].covered += 1;
+            summary[rule.key].covered += 1;
+            pairs[rule.key].covered += 1;
           }
         }
       }
+    }
+    for (const rule of COVERAGE_RULES) {
+      if (summary[rule.key].covered > summary[rule.key].event) throw new Error(`${rule.label}覆蓋站數不可大於${rule.event}站數`);
     }
     return { summary, stations: stationStats };
   }
@@ -270,7 +302,8 @@
       const sum = new Float64Array(stations.length);
       const weight = new Float64Array(stations.length);
       for (const [dayType, dayWeight] of Object.entries(dayWeights)) {
-        const rows = monthData.values?.[dayType]?.[Math.floor(state.slot / 2)] || [];
+        const hourIndex = state.granularity === "hour" ? state.slot : Math.floor(state.slot / 2);
+        const rows = monthData.values?.[dayType]?.[hourIndex] || [];
         for (const row of rows) {
           const value = Number(row[sourceIndex]);
           if (!Number.isFinite(value)) continue;
@@ -314,12 +347,12 @@
 
   function popupHtml(station, metricValues, dateCount, pairStats) {
     const rows = metricValues.map(({ metric, value }) => `<span><i style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${COLORS[metric]};margin-right:6px"></i>${metric}</span><b>${value == null ? "—" : `${fmt.format(value)}${metric.includes("率") ? "%" : ""}`}</b>`).join("");
-    const pairRows = COVERAGE_PAIRS.map((pair) => {
-      const stats = pairStats?.[pair.action] || { covered: 0, event: 0 };
+    const pairRows = COVERAGE_RULES.map((rule) => {
+      const stats = pairStats?.[rule.key] || { covered: 0, event: 0 };
       const percent = stats.event ? `${fmtOne.format(stats.covered / stats.event * 100)}%` : "—";
-      return `<span><em>${pair.event}＋${pair.action === "解綁車" ? "解車" : pair.action}</em><b>${stats.covered}/${stats.event} 站日 · ${percent}</b></span>`;
+      return `<span${rule.combined ? ' class="combined"' : ""}><em>${rule.event} ∩ ${rule.label}</em><b>${stats.covered}/${stats.event} 站時 · ${percent}</b></span>`;
     }).join("");
-    return `<div class="popup-title">${safeText(station.name)}</div><div class="popup-meta">${safeText(station.city)} ${safeText(station.district)} · ${safeText(station.code)} · ${station.grade}級 · 日均 ${fmt.format(station.usage)}</div><div class="popup-grid">${rows}</div><div class="popup-pairs">${pairRows}</div><div class="popup-meta" style="margin:9px 0 0">活動值為 ${dateCount} 日含零平均；覆蓋按同站、同日、同半小時計算。</div>`;
+    return `<div class="popup-title">${safeText(station.name)}</div><div class="popup-meta">${safeText(station.city)} ${safeText(station.district)} · ${safeText(station.code)} · ${station.grade}級 · 日均 ${fmt.format(station.usage)}</div><div class="popup-grid">${rows}</div><div class="popup-pairs">${pairRows}</div><div class="popup-meta" style="margin:9px 0 0">活動值為 ${dateCount} 日含零平均；覆蓋以${timeUnitText()}的事件站集合與調度站集合交集計算。</div>`;
   }
 
   function renderMap(filtered, dateItems, activity, rates, selectedMetrics, coverage) {
@@ -381,12 +414,12 @@
 
   function renderCoverageKpis(coverage, dateItems) {
     const dayCount = dateItems.length || 1;
-    const cards = COVERAGE_PAIRS.map((pair) => {
-      const stats = coverage.summary[pair.action];
+    const cards = COVERAGE_RULES.map((rule) => {
+      const stats = coverage.summary[rule.key];
       const percent = stats.event ? `${fmtOne.format(stats.covered / stats.event * 100)}%` : "—";
-      const label = pair.action === "解綁車" ? "解車" : pair.action;
       const noBase = stats.event ? "" : " no-base";
-      return `<div class="map-kpi${noBase}" title="${label}覆蓋率＝同站同日同時段同時發生${pair.event}與${label}的站數 ÷ ${pair.event}站數"><span><i style="background:${COLORS[pair.action]}"></i>${label}覆蓋率</span><strong>${percent}</strong><small>日均 ${fmtOne.format(stats.covered / dayCount)} / ${fmtOne.format(stats.event / dayCount)} 站</small></div>`;
+      const combined = rule.combined ? " combined" : "";
+      return `<div class="map-kpi${noBase}${combined}" title="${rule.label}覆蓋率＝${rule.event}站集合 ∩ ${rule.label}站集合 ÷ ${rule.event}站集合；同站${timeUnitText()}只算一站"><span><i style="background:${rule.color}"></i>${rule.label}覆蓋率</span><strong>${percent}</strong><small>交集日均 ${fmtOne.format(stats.covered / dayCount)} / 事件日均 ${fmtOne.format(stats.event / dayCount)} 站</small></div>`;
     });
     $("mapKpis").innerHTML = cards.join("");
   }
@@ -404,7 +437,7 @@
     $("gradeSummary").textContent = grades.join("") || "未選";
     $("metricSummary").textContent = selectedMetrics.length === 4 && DEFAULT_METRICS.every((metric) => selectedMetrics.includes(metric)) ? "4 項調度" : `${selectedMetrics.length} 項`;
     $("slotLabel").textContent = slotLabel(state.slot);
-    $("selectionCopy").textContent = `${monthInfo.label} · ${dateItems.length} 個有效日期 · ${filtered.length} 站 · 地圖顯示 ${plotted} 站`;
+    $("selectionCopy").textContent = `${monthInfo.label} · ${state.granularity === "hour" ? "每小時" : "每半小時"} · ${dateItems.length} 個有效日期 · ${filtered.length} 站 · 地圖顯示 ${plotted} 站`;
     $("dateCount").textContent = fmt.format(dateItems.length);
     $("stationCount").textContent = fmt.format(filtered.length);
     $("rowCount").textContent = fmt.format(detailRows.length);
@@ -449,8 +482,10 @@
     $("usageThreshold").value = "100";
     $("stationSearch").value = "";
     state.query = "";
-    state.slot = 16;
-    $("slotRange").value = "16";
+    state.granularity = "hour";
+    state.slot = 8;
+    $("granularitySelect").value = "hour";
+    configureSlotRange();
     queueRefresh(true);
   }
 
@@ -468,7 +503,7 @@
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `友愛接力逐日明細_${state.month}_${slotStart(state.slot).replace(":", "")}.csv`;
+    anchor.download = `友愛接力逐日明細_${state.month}_${state.granularity}_${slotStart(state.slot).replace(":", "")}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
     toast(`已匯出 ${fmt.format(detailRows.length)} 筆逐日明細`);
@@ -481,6 +516,7 @@
   function currentView() {
     return {
       month: state.month,
+      granularity: state.granularity,
       slot: state.slot,
       slotLabel: slotLabel(state.slot),
       dates: checkedValues("dateOptions"),
@@ -498,6 +534,14 @@
 
   function bindEvents() {
     $("monthSelect").addEventListener("change", (event) => loadMonth(event.target.value));
+    $("granularitySelect").addEventListener("change", (event) => {
+      const next = event.target.value;
+      if (next === state.granularity) return;
+      state.slot = next === "hour" ? Math.floor(state.slot / 2) : state.slot * 2;
+      state.granularity = next;
+      configureSlotRange();
+      queueRefresh(true);
+    });
     $("slotRange").addEventListener("input", (event) => { state.slot = Number(event.target.value); queueRefresh(true); });
     $("usageThreshold").addEventListener("input", () => queueRefresh(true));
     $("stationSearch").addEventListener("input", (event) => { state.query = event.target.value; queueRefresh(true); });
@@ -562,7 +606,7 @@
       $("playButton").textContent = state.playing ? "■" : "▶";
       clearInterval(state.playTimer);
       if (state.playing) state.playTimer = setInterval(() => {
-        state.slot = (state.slot + 1) % 48;
+        state.slot = (state.slot + 1) % (state.granularity === "hour" ? 24 : 48);
         $("slotRange").value = String(state.slot);
         queueRefresh(true);
       }, 1050);
@@ -608,7 +652,7 @@
     register({
       name: "configure_heatmap_view",
       title: "設定熱力圖篩選",
-      description: "批次設定友愛接力逐日熱力圖的月份、複選日期、平假日、城市、行政區、ABC級、指標、半小時時段與用量門檻，並更新畫面。",
+      description: "批次設定友愛接力逐日熱力圖的月份、複選日期、平假日、城市、行政區、ABC級、指標、時間粒度、時段與用量門檻，並更新畫面。",
       inputSchema: {
         type: "object",
         properties: {
@@ -619,6 +663,7 @@
           districts: { type: "array", items: { type: "string" } },
           grades: { type: "array", items: { type: "string", enum: ["A", "B", "C"] } },
           metrics: { type: "array", items: { type: "string", enum: METRICS } },
+          granularity: { type: "string", enum: ["hour", "half-hour"] },
           slot: { type: "integer", minimum: 0, maximum: 47 },
           usageThreshold: { type: "number", minimum: -1, maximum: 3000 },
           stationSearch: { type: "string" }
@@ -639,7 +684,16 @@
         if (input.districts) setChecked("districtOptions", input.districts);
         if (input.grades) setChecked("gradeOptions", input.grades);
         if (input.metrics) setChecked("metricOptions", input.metrics);
-        if (Number.isInteger(input.slot)) { state.slot = input.slot; $("slotRange").value = String(input.slot); }
+        if (input.granularity) {
+          state.granularity = input.granularity;
+          $("granularitySelect").value = input.granularity;
+          configureSlotRange();
+        }
+        if (Number.isInteger(input.slot)) {
+          const maximum = state.granularity === "hour" ? 23 : 47;
+          state.slot = Math.min(input.slot, maximum);
+          configureSlotRange();
+        }
         if (Number.isFinite(input.usageThreshold)) $("usageThreshold").value = String(input.usageThreshold);
         if (typeof input.stationSearch === "string") { state.query = input.stationSearch; $("stationSearch").value = input.stationSearch; }
         refresh(true);
@@ -656,6 +710,7 @@
       return;
     }
     populateStaticControls();
+    configureSlotRange();
     bindEvents();
     await loadMonth(state.month);
     registerWebMcp();

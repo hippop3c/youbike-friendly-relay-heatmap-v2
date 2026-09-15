@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="雙北友愛接力逐日熱力圖 V3，可複選日期、判讀同站民眾與調度行為，並計算四類調度覆蓋率。">
-  <title>雙北友愛接力逐日熱力圖 V3</title>
+  <meta name="description" content="雙北友愛接力逐日熱力圖 V4，可複選日期，以同小時事件站集合與調度站集合交集計算覆蓋率。">
+  <title>雙北友愛接力逐日熱力圖 V4</title>
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="app.css?v=20260914-v3">
+  <link rel="stylesheet" href="app.css?v=20260915-v4">
 </head>
 <body>
   <div class="loading" id="loading" role="status" aria-live="polite">
@@ -17,7 +17,7 @@
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">Y</div>
-      <div><h1>友愛接力逐日熱力圖 <em>V3</em></h1><p>雙北場站 · 半小時 · 同站覆蓋</p></div>
+      <div><h1>友愛接力逐日熱力圖 <em>V4</em></h1><p>雙北場站 · 事件站集合 ∩ 調度站集合</p></div>
     </div>
     <div class="header-actions">
       <label class="station-search">
@@ -81,8 +81,9 @@
 
   <section class="timebar">
     <button id="playButton" class="play-button" type="button" aria-label="播放時段">▶</button>
-    <div class="time-copy"><span>目前時段</span><strong id="slotLabel">08:00–08:29</strong></div>
-    <input id="slotRange" type="range" min="0" max="47" value="16" step="1" aria-label="每半小時時段">
+    <label class="granularity-control"><span>統計粒度</span><select id="granularitySelect"><option value="hour" selected>每小時</option><option value="half-hour">每半小時</option></select></label>
+    <div class="time-copy"><span>目前時段</span><strong id="slotLabel">08:00–08:59</strong></div>
+    <input id="slotRange" type="range" min="0" max="23" value="8" step="1" aria-label="每小時時段">
     <div class="selection-copy" id="selectionCopy">—</div>
   </section>
 
@@ -93,9 +94,9 @@
       <div class="legend-card">
         <div class="legend-head"><strong>圖例</strong><span>圓點大小＝數值</span></div>
         <div id="legendItems" class="legend-items"></div>
-        <div class="pair-legend"><i class="pair-sample full-pair"></i><span>橘色外圈：同站同日同時段亦有滿借</span></div>
-        <div class="pair-legend"><i class="pair-sample empty-pair"></i><span>綠色外圈：同站同日同時段亦有空還</span></div>
-        <p>圓點填色代表所選指標；調度圓點的彩色外圈表示至少一個選取日同站共現。多日平均會把未發生值按 0 納入。</p>
+        <div class="pair-legend"><i class="pair-sample full-pair"></i><span>橘色外圈：選定時段同站亦有滿借</span></div>
+        <div class="pair-legend"><i class="pair-sample empty-pair"></i><span>綠色外圈：選定時段同站亦有空還</span></div>
+        <p>覆蓋分子只取事件站與對應調度站的交集；合併調度同站同時段只算一站。多日平均將未發生值按 0 納入。</p>
       </div>
     </section>
 
@@ -124,14 +125,14 @@
         <span id="pageText">第 1 / 1 頁</span>
         <button id="nextPage" type="button">下一頁</button>
       </div>
-      <p class="method-note">滿借／空還為行動電話會員唯一訂單次數；四項調度各自獨立，採同站、同日、同半小時、同動作的單筆最大車輛數。</p>
+      <p class="method-note">原始資料以半小時建置；選「每小時」時先合併兩個半小時，再依場站去重判斷事件與調度交集。</p>
     </aside>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="months.js?v=20260914-v3"></script>
-  <script src="app.js?v=20260914-v3"></script>
+  <script src="months.js?v=20260915-v4"></script>
+  <script src="app.js?v=20260915-v4"></script>
 </body>
 </html>

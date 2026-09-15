@@ -1,5 +1,5 @@
 window.YOUBIKE_HEATMAP_MONTHS={
-  version:"20260914-v3-daily",
+  version:"20260915-v4-hourly-coverage",
   defaultMonth:"2026-09",
   months:[
     {
