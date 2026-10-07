@@ -1,5 +1,5 @@
 window.YOUBIKE_HEATMAP_MONTHS={
-  version:"20260915-v5-card-daily",
+  version:"20261007-v6-september-complete",
   defaultMonth:"2026-09",
   months:[
     {
@@ -22,12 +22,12 @@ window.YOUBIKE_HEATMAP_MONTHS={
     },
     {
       id:"2026-09",
-      label:"2026年9月，截至9/13",
+      label:"2026年9月",
       src:"data/heatmap-2026-09.js",
       dailySrc:"data/daily-2026-09.js",
       cardSrc:"data/cards-2026-09.js",
-      revision:"df8a95c3d302",
-      partial:true
+      revision:"868cabd9d0a5",
+      partial:false
     }
   ]
 };

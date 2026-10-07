@@ -129,12 +129,14 @@ def month_configs(workspace: Path, source_root: Path) -> dict[str, dict[str, Any
         "2026-09": {
             "payload": Path(__file__).resolve().parents[1] / "dist" / "data" / "heatmap-2026-09.js",
             "start": dt.date(2026, 9, 1),
-            "end": dt.date(2026, 9, 13),
+            "end": dt.date(2026, 9, 30),
             "excluded": set(),
-            "reward_dirs": [source_root / "v3_2026-09-13" / "reward"],
+            "reward_dirs": [source_root / "v4_2026-09-30" / "reward_full_month"],
             "vds": [
                 source_root / "v3_2026-09-13" / "vds" / "vds_task_taipei_2026-09-01_13.xlsx",
                 source_root / "v3_2026-09-13" / "vds" / "vds_task_newtaipei_2026-09-01_13.xlsx",
+                source_root / "v4_2026-09-30" / "vds" / "vds_task_taipei_2026-09-14_30.xlsx",
+                source_root / "v4_2026-09-30" / "vds" / "vds_task_newtaipei_2026-09-14_30.xlsx",
             ],
         },
     }

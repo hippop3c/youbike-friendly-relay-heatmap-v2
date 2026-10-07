@@ -56,9 +56,9 @@ def month_configs(source_root: Path) -> dict[str, dict[str, Any]]:
         },
         "2026-09": {
             "start": dt.date(2026, 9, 1),
-            "end": dt.date(2026, 9, 13),
+            "end": dt.date(2026, 9, 30),
             "excluded": set(),
-            "reward_dirs": [source_root / "v3_2026-09-13" / "reward"],
+            "reward_dirs": [source_root / "v4_2026-09-30" / "reward_full_month"],
         },
     }
 

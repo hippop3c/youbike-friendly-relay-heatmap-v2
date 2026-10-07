@@ -1,0 +1,563 @@
+{
+  "period": "2026-09",
+  "periodStart": "2026-09-01",
+  "periodEnd": "2026-09-30",
+  "partial": false,
+  "weekdayDays": 22,
+  "holidayDays": 8,
+  "stations": 3430,
+  "stationsWithWeekdayUsage": 3382,
+  "hourlyRows": {
+    "平日": 81328,
+    "假日": 81239
+  },
+  "halfHourlyRows": {
+    "平日": 113694,
+    "假日": 72845
+  },
+  "rateCells": {
+    "平日": 162240,
+    "假日": 162192
+  },
+  "eventTotals": {
+    "滿借": 184388,
+    "空還": 770557
+  },
+  "sourceHourlyParity": {
+    "eventMismatches": 0,
+    "dispatchMismatches": 0
+  },
+  "sources": {
+    "stationSnapshot": {
+      "file": "station-yb2_2026-10-01.json",
+      "bytes": 6287183,
+      "sha256": "d59ad8fd27425de405358e094f5e9041167d1c3d80cf8ca41317c2e986795806",
+      "templateStations": 3418,
+      "templateStationsWithoutSno": 0,
+      "publicOperatingStations": 3418,
+      "publicStationsAppended": 12
+    },
+    "stationMetadata": {
+      "file": "stations.json",
+      "stations": 3389,
+      "sha256": "19ba590643d16e0acd21e59044b82972013310b04e5418ad5c6468574585f960",
+      "historicalCodeAliases": [
+        {
+          "code": "500103091",
+          "canonicalCode": "500107210"
+        }
+      ]
+    },
+    "usage": {
+      "mode": "raw-cps",
+      "files": [
+        {
+          "file": "cps_taipei_yb20_2026-09-01_2026-10-02.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-06",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-13",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-20",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-27",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "rows": 53235,
+          "borrowTotal": 6908850,
+          "bytes": 7715057,
+          "sha256": "e92faf68803db8c1088baf406d14742d47b0135ab72cce7a8cbc330175fa3ce5"
+        },
+        {
+          "file": "cps_taipei_yb20e_2026-09-01_2026-10-02.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-06",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-13",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-20",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-27",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "rows": 52386,
+          "borrowTotal": 750725,
+          "bytes": 4754996,
+          "sha256": "c0bef512e489e8cbc8d01a0b6fd3bf61e44169d6606983c6fff519923ec17b44"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-08-31_2026-09-04.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04"
+          ],
+          "rows": 6214,
+          "borrowTotal": 331630,
+          "bytes": 892085,
+          "sha256": "994d25eb5195c4823f4cef526664dbc190e052199caecea60219b00e03eb48a7"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-08-31_2026-09-04.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04"
+          ],
+          "rows": 5617,
+          "borrowTotal": 33536,
+          "bytes": 479622,
+          "sha256": "1edfd3f0de7266684642881bfb905e1294d902e915877449f522ebe8a91244d6"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-05_2026-09-06.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-05",
+            "2026-09-06"
+          ],
+          "rows": 3120,
+          "borrowTotal": 158337,
+          "bytes": 357770,
+          "sha256": "8510e4cfdb8556b5213015f5d2505c33413a876f5e0843724fb74f3fbd30a67a"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-05_2026-09-06.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-05",
+            "2026-09-06"
+          ],
+          "rows": 2789,
+          "borrowTotal": 16231,
+          "bytes": 187257,
+          "sha256": "646b7b3c89e6d1ee785a430f8367b77013b2f525275b3491b2cf5456469f6415"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-07_2026-09-11.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11"
+          ],
+          "rows": 7851,
+          "borrowTotal": 689501,
+          "bytes": 990354,
+          "sha256": "6f52b6bda5b93047c6021846893f610ac4357b61c587079379c48e2fc4b60b6a"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-07_2026-09-11.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11"
+          ],
+          "rows": 7477,
+          "borrowTotal": 66845,
+          "bytes": 555003,
+          "sha256": "566270f14a0bd9922275c39057b39ba94c8c2290d187a9d66f169befbdc4beb4"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-12_2026-09-13.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ],
+          "rows": 3162,
+          "borrowTotal": 277557,
+          "bytes": 405793,
+          "sha256": "518846bd68e6c1d7af1f62787e72bca042f6e91733095fbcd517d6cb8ec23006"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-12_2026-09-13.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ],
+          "rows": 2952,
+          "borrowTotal": 26549,
+          "bytes": 220662,
+          "sha256": "37465a69022544f48208990bfb56489ab399a757a31dece84efdc5d8aa3a8fb3"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-14_2026-09-18.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18"
+          ],
+          "rows": 7915,
+          "borrowTotal": 717118,
+          "bytes": 1006796,
+          "sha256": "1b284ccb3c37b713c6979915c0cd24d7bb7688f691d5af883f7dd6b5572ebbf3"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-14_2026-09-18.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18"
+          ],
+          "rows": 7449,
+          "borrowTotal": 67786,
+          "bytes": 553619,
+          "sha256": "07509334a97d0abd90d7051b7fb37b7f51ee0b32a6a9118d782ae8c70033b821"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-19_2026-09-20.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ],
+          "rows": 3177,
+          "borrowTotal": 296885,
+          "bytes": 420396,
+          "sha256": "32be2e683041b39c13798d42ac9bab3fd6add3443c2e8ff371f112880f26b8ff"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-19_2026-09-20.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ],
+          "rows": 3001,
+          "borrowTotal": 30106,
+          "bytes": 232851,
+          "sha256": "df7b2272978bec94d8cfaa64f494ddb0f6294ca7d876dd5917a4e0fb134f9a6d"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-21_2026-09-25.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "rows": 7926,
+          "borrowTotal": 741835,
+          "bytes": 1021273,
+          "sha256": "8db6652a32a047f7aa228047f995ac63b75ae9a66a0f468aa073627f16a0f760"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-21_2026-09-25.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25"
+          ],
+          "rows": 7578,
+          "borrowTotal": 75079,
+          "bytes": 578389,
+          "sha256": "c890a24ad5ec8180b005595e4fea5a84ea40a0f2637b2aef4ff261ced5ed32ac"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-26_2026-09-27.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-26",
+            "2026-09-27"
+          ],
+          "rows": 3176,
+          "borrowTotal": 266307,
+          "bytes": 414883,
+          "sha256": "c435988b0869dcb133097bd5fb0033a0b85d2e3e866974b4638f684439577b89"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-26_2026-09-27.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-26",
+            "2026-09-27"
+          ],
+          "rows": 3029,
+          "borrowTotal": 30800,
+          "bytes": 234201,
+          "sha256": "250b84538373bc80e7c062e689a1d432e64c86070944381b72383698ecb67f23"
+        },
+        {
+          "file": "cps_newtaipei_yb20_2026-09-28_2026-10-02.xlsx",
+          "vehicle": "yb20",
+          "dates": [
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "rows": 4748,
+          "borrowTotal": 429046,
+          "bytes": 1014099,
+          "sha256": "1508a95c51b456a23f3f6dcef395842a03d3e78ca5f9ebb1ee63959e7a9e6776"
+        },
+        {
+          "file": "cps_newtaipei_yb20e_2026-09-28_2026-10-02.xlsx",
+          "vehicle": "yb20e",
+          "dates": [
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "rows": 4542,
+          "borrowTotal": 43731,
+          "bytes": 571735,
+          "sha256": "30ebb267e4ac950f99bec862a3aefe965b6c56097537bae8437d7b4286171b46"
+        }
+      ]
+    },
+    "rates": {
+      "mode": "raw-report",
+      "files": [
+        {
+          "file": "report_taipei_2026-09.json",
+          "rows": 106338,
+          "includedRows": 106338,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-06",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-13",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-20",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-27",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "bytes": 54014217,
+          "sha256": "5d46529a4ec940c874e7c3d3fc54c700476f7773d0b5cfda226b3e57f803c7e6"
+        },
+        {
+          "file": "report_newtaipei_2026-09.json",
+          "rows": 95008,
+          "includedRows": 95008,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02",
+            "2026-09-03",
+            "2026-09-04",
+            "2026-09-05",
+            "2026-09-06",
+            "2026-09-07",
+            "2026-09-08",
+            "2026-09-09",
+            "2026-09-10",
+            "2026-09-11",
+            "2026-09-12",
+            "2026-09-13",
+            "2026-09-14",
+            "2026-09-15",
+            "2026-09-16",
+            "2026-09-17",
+            "2026-09-18",
+            "2026-09-19",
+            "2026-09-20",
+            "2026-09-21",
+            "2026-09-22",
+            "2026-09-23",
+            "2026-09-24",
+            "2026-09-25",
+            "2026-09-26",
+            "2026-09-27",
+            "2026-09-28",
+            "2026-09-29",
+            "2026-09-30"
+          ],
+          "bytes": 47903090,
+          "sha256": "b270b607d3756d54ab0d6922dadda53c4be3cc14862a924707a797783718907c"
+        }
+      ],
+      "invalidRateValues": 0
+    },
+    "reward": {
+      "files": 44,
+      "directory": "reward_full_month",
+      "sourceRows": 1022545,
+      "duplicateRows": 17437,
+      "uniqueOrders": 1005108,
+      "mobileOrders": 979266,
+      "includedEvents": {
+        "滿借": 184388,
+        "空還": 770557
+      },
+      "ambiguousStationNames": 0,
+      "ambiguousEvents": 0,
+      "ambiguousExamples": [],
+      "denominators": {
+        "平日": 22,
+        "假日": 8
+      }
+    },
+    "dispatch": {
+      "files": [
+        {
+          "file": "vds_task_taipei_2026-09-01_13.xlsx",
+          "schema": "staff-info",
+          "counts": {
+            "sourceRows": 56032,
+            "matchedRows": 48596,
+            "調出": 13740,
+            "調入": 16800,
+            "綁車": 8615,
+            "解綁車": 9441,
+            "excludedNonPublicRows": 2
+          },
+          "bytes": 3849526,
+          "sha256": "6f35f5a6182e0a0c26cca286f64247f57a5aebd8c63aecee25969bec06f3251f"
+        },
+        {
+          "file": "vds_task_newtaipei_2026-09-01_13.xlsx",
+          "schema": "staff-info",
+          "counts": {
+            "sourceRows": 64087,
+            "matchedRows": 56982,
+            "調出": 16176,
+            "綁車": 10330,
+            "解綁車": 11654,
+            "調入": 18822
+          },
+          "bytes": 4416010,
+          "sha256": "f5e2e74c38b4aec909f56f23f09bad29eb16e92f87fb43135d21cf3b000da60f"
+        },
+        {
+          "file": "vds_task_taipei_2026-09-14_30.xlsx",
+          "schema": "staff-info",
+          "counts": {
+            "sourceRows": 81950,
+            "matchedRows": 71129,
+            "調出": 19904,
+            "解綁車": 13546,
+            "調入": 24992,
+            "綁車": 12687,
+            "excludedNonPublicRows": 17
+          },
+          "bytes": 5664687,
+          "sha256": "ef683f8b62fa9733d79c43543dea68613320b1f60a46acb6c303e1fcf9dac4b7"
+        },
+        {
+          "file": "vds_task_newtaipei_2026-09-14_30.xlsx",
+          "schema": "staff-info",
+          "counts": {
+            "sourceRows": 94205,
+            "matchedRows": 83570,
+            "綁車": 15344,
+            "調入": 27398,
+            "調出": 24013,
+            "解綁車": 16815
+          },
+          "bytes": 6543813,
+          "sha256": "34a5fc12ef0bbb1c43af78a34e24703d67f045fb4fbfc619a553ba9c8504fa71"
+        }
+      ],
+      "unmatchedStations": 0,
+      "excludedNonPublicStations": [
+        {
+          "code": "500199003",
+          "city": "台北市",
+          "name": "新店維修中心",
+          "rows": 15
+        },
+        {
+          "code": "500199008",
+          "city": "台北市",
+          "name": "博愛國小(跨年專用)",
+          "rows": 4
+        }
+      ],
+      "excludedNonPublicRows": 19
+    }
+  },
+  "output": {
+    "file": "C:\\Users\\user\\Documents\\調度相關\\outputs\\20261007_friend_relay_september\\heatmap-2026-09.full.js",
+    "bytes": 10772841,
+    "sha256": "6da3eec226f70e88b34831579111319ecab89743f284873e4ea95697c3b76109"
+  }
+}

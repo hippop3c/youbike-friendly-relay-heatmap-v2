@@ -1,11 +1,11 @@
 {
   "version": "v1",
-  "generatedAt": "2026-09-15T11:55:12+08:00",
+  "generatedAt": "2026-10-07T14:25:53+08:00",
   "sourceAudit": {
     "counts": {
-      "sourceRows": 2321918,
-      "duplicateRows": 264571,
-      "uniqueOrders": 2057347
+      "sourceRows": 2958888,
+      "duplicateRows": 275571,
+      "uniqueOrders": 2683317
     },
     "files": [
       {
@@ -514,6 +514,36 @@
         "bytes": 2429675
       },
       {
+        "file": "newtaipei_empty_return_2026-09-14_2026-09-16.csv",
+        "rows": 35479,
+        "bytes": 5704656
+      },
+      {
+        "file": "newtaipei_empty_return_2026-09-17_2026-09-19.csv",
+        "rows": 35066,
+        "bytes": 5642773
+      },
+      {
+        "file": "newtaipei_empty_return_2026-09-20_2026-09-22.csv",
+        "rows": 33378,
+        "bytes": 5370412
+      },
+      {
+        "file": "newtaipei_empty_return_2026-09-23_2026-09-25.csv",
+        "rows": 30353,
+        "bytes": 4888121
+      },
+      {
+        "file": "newtaipei_empty_return_2026-09-26_2026-09-28.csv",
+        "rows": 21424,
+        "bytes": 3453967
+      },
+      {
+        "file": "newtaipei_empty_return_2026-09-29_2026-09-30.csv",
+        "rows": 26686,
+        "bytes": 4300310
+      },
+      {
         "file": "newtaipei_full_borrow_2026-08-31_2026-09-02.csv",
         "rows": 2515,
         "bytes": 409663
@@ -537,6 +567,36 @@
         "file": "newtaipei_full_borrow_2026-09-12_2026-09-13.csv",
         "rows": 1955,
         "bytes": 317756
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-14_2026-09-16.csv",
+        "rows": 2625,
+        "bytes": 426508
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-17_2026-09-19.csv",
+        "rows": 3784,
+        "bytes": 616118
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-20_2026-09-22.csv",
+        "rows": 3623,
+        "bytes": 591400
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-23_2026-09-25.csv",
+        "rows": 3617,
+        "bytes": 588150
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-26_2026-09-28.csv",
+        "rows": 3324,
+        "bytes": 541189
+      },
+      {
+        "file": "newtaipei_full_borrow_2026-09-29_2026-09-30.csv",
+        "rows": 2114,
+        "bytes": 343306
       },
       {
         "file": "taipei_empty_return_2026-08-31_2026-09-02.csv",
@@ -564,6 +624,36 @@
         "bytes": 3744363
       },
       {
+        "file": "taipei_empty_return_2026-09-14_2026-09-16.csv",
+        "rows": 61852,
+        "bytes": 10210690
+      },
+      {
+        "file": "taipei_empty_return_2026-09-17_2026-09-19.csv",
+        "rows": 67570,
+        "bytes": 11157132
+      },
+      {
+        "file": "taipei_empty_return_2026-09-20_2026-09-22.csv",
+        "rows": 64218,
+        "bytes": 10604182
+      },
+      {
+        "file": "taipei_empty_return_2026-09-23_2026-09-25.csv",
+        "rows": 66454,
+        "bytes": 10964398
+      },
+      {
+        "file": "taipei_empty_return_2026-09-26_2026-09-28.csv",
+        "rows": 27149,
+        "bytes": 4463713
+      },
+      {
+        "file": "taipei_empty_return_2026-09-29_2026-09-30.csv",
+        "rows": 47008,
+        "bytes": 7764089
+      },
+      {
         "file": "taipei_full_borrow_2026-08-31_2026-09-02.csv",
         "rows": 17172,
         "bytes": 2846051
@@ -587,16 +677,46 @@
         "file": "taipei_full_borrow_2026-09-12_2026-09-13.csv",
         "rows": 11234,
         "bytes": 1863459
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-14_2026-09-16.csv",
+        "rows": 19834,
+        "bytes": 3283365
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-17_2026-09-19.csv",
+        "rows": 19735,
+        "bytes": 3269847
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-20_2026-09-22.csv",
+        "rows": 16429,
+        "bytes": 2713119
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-23_2026-09-25.csv",
+        "rows": 16346,
+        "bytes": 2706888
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-26_2026-09-28.csv",
+        "rows": 13152,
+        "bytes": 2170538
+      },
+      {
+        "file": "taipei_full_borrow_2026-09-29_2026-09-30.csv",
+        "rows": 15750,
+        "bytes": 2600175
       }
     ]
   },
   "buildAudit": {
     "counts": {
-      "eligibleOrders": 1996522,
-      "included空還": 1564291,
-      "excludedNonMobileOrders": 60825,
-      "included滿借": 456745,
-      "excludedOutOfScope空還": 3465,
+      "eligibleOrders": 2607035,
+      "included空還": 2066135,
+      "excludedNonMobileOrders": 76282,
+      "included滿借": 574553,
+      "excludedOutOfScope空還": 4459,
       "excluded空還": 3391,
       "excluded滿借": 503
     },
@@ -631,13 +751,13 @@
       {
         "month": "2026-09",
         "periodStart": "2026-09-01",
-        "periodEnd": "2026-09-13",
+        "periodEnd": "2026-09-30",
         "excludedDates": [],
         "suffixLength": 5,
-        "suffixCount": 83568,
-        "collisionSuffixCount": 53931,
-        "fullEvents": 66580,
-        "emptyEvents": 268736,
+        "suffixCount": 97371,
+        "collisionSuffixCount": 87935,
+        "fullEvents": 184388,
+        "emptyEvents": 770580,
         "privacy": "Only normalized card suffixes and daily aggregate counts are stored; full card numbers, accounts, order IDs, stations and timestamps are excluded."
       }
     ]
