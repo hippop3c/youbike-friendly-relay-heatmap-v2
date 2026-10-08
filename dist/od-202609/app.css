@@ -15,7 +15,7 @@
   --full-soft: #fff0ee;
   --empty: #f19616;
   --empty-soft: #fff5e5;
-  --route: #52779a;
+  --route: #163f5f;
   --shadow: 0 12px 34px rgba(22, 45, 64, 0.13);
   --small-shadow: 0 5px 18px rgba(22, 45, 64, 0.12);
   font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, sans-serif;
@@ -194,10 +194,10 @@ select:focus-visible {
   position: relative;
   z-index: 900;
   display: grid;
-  grid-template-columns: auto minmax(225px, 0.8fr) minmax(235px, 0.82fr) minmax(330px, 1.25fr) auto;
+  grid-template-columns: auto auto minmax(190px, 0.7fr) minmax(215px, 0.78fr) minmax(250px, 1.05fr) auto;
   align-items: end;
-  gap: 12px;
-  padding: 11px 18px 12px;
+  gap: 8px;
+  padding: 11px 14px 12px;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
   box-shadow: 0 3px 12px rgba(36, 59, 76, 0.05);
@@ -249,6 +249,13 @@ select:focus-visible {
   background: var(--navy-900);
   box-shadow: 0 2px 7px rgba(16, 47, 76, 0.18);
   color: #fff;
+}
+
+.event-segmented span { padding: 0 9px; }
+.event-segmented input[value="full"]:checked + span { background: var(--full); }
+.event-segmented input[value="empty"]:checked + span { background: #d77b00; }
+.event-segmented input[value="both"]:checked + span {
+  background: linear-gradient(90deg, var(--full) 0 50%, #d77b00 50%);
 }
 
 .date-stepper {
@@ -815,7 +822,7 @@ select:focus-visible {
 .relay-popup .popup-note { margin: 7px 0 0; padding-top: 6px; border-top: 1px solid var(--soft-line); color: #84919a; font-size: 9px; }
 
 @media (max-width: 1180px) {
-  .filters { grid-template-columns: auto minmax(205px, 1fr) minmax(220px, 1fr) minmax(260px, 1.25fr); }
+  .filters { grid-template-columns: auto auto minmax(205px, 1fr) minmax(220px, 1fr); }
   .reset-button { position: absolute; top: 8px; right: 13px; height: 27px; padding: 0 8px; }
   .search-filter legend { padding-right: 60px; }
   .updated-copy { display: none; }
@@ -829,9 +836,10 @@ select:focus-visible {
   .brand-mark { width: 40px; transform: scale(0.88); transform-origin: left center; }
   .filters { grid-template-columns: 1fr 1fr; padding: 10px 12px 12px; gap: 10px; }
   .city-filter { order: 1; }
-  .date-filter { order: 2; }
-  .time-filter { order: 3; }
-  .search-filter { order: 4; }
+  .event-filter { order: 2; }
+  .date-filter { order: 3; }
+  .time-filter { order: 4; }
+  .search-filter { order: 5; }
   .reset-button { top: 7px; right: 10px; }
   .selection-bar { min-height: 36px; padding: 7px 13px; }
   .selection-hint { display: none; }
@@ -851,6 +859,7 @@ select:focus-visible {
   .privacy-pill { padding: 5px 7px; white-space: normal; text-align: center; }
   .filters { grid-template-columns: 1fr; }
   .city-filter,
+  .event-filter,
   .date-filter,
   .time-filter,
   .search-filter { order: initial; }

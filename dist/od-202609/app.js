@@ -7,7 +7,7 @@
   const PAGE_SIZE = 60;
   const CACHE_DAYS = 3;
   const COLORS = {
-    route: "#52779a",
+    route: "#163f5f",
     routeFocus: "#102f4c",
     full: "#d9473f",
     empty: "#f19616",
@@ -17,6 +17,7 @@
   const state = {
     dateIndex: 0,
     page: 1,
+    eventMode: "all",
     query: "",
     searchScope: "both",
     selectedRawIndex: null,
@@ -413,7 +414,7 @@
       },
 
       _routeWidth(count) {
-        return Math.min(8, 0.8 + Math.log2(Math.max(1, count) + 1) * 0.92);
+        return Math.min(10.5, 1.9 + Math.log2(Math.max(1, count) + 1) * 1.12);
       },
 
       _routePath(ctx, route) {
@@ -454,8 +455,17 @@
           buckets.get(width).push(route);
         }
 
+        ctx.strokeStyle = "#ffffff";
+        ctx.globalAlpha = this._routes.length > 5000 ? 0.34 : 0.46;
+        for (const [width, routes] of buckets) {
+          ctx.lineWidth = width + 2.2;
+          ctx.beginPath();
+          for (const route of routes) this._routePath(ctx, route);
+          ctx.stroke();
+        }
+
         ctx.strokeStyle = COLORS.route;
-        ctx.globalAlpha = this._routes.length > 5000 ? 0.24 : this._routes.length > 1500 ? 0.3 : 0.38;
+        ctx.globalAlpha = this._routes.length > 5000 ? 0.52 : this._routes.length > 1500 ? 0.62 : 0.76;
         for (const [width, routes] of buckets) {
           ctx.lineWidth = width;
           ctx.beginPath();
@@ -639,6 +649,14 @@
     return new Set([...$("cityOptions").querySelectorAll('input[type="checkbox"]:checked')].map((input) => input.value));
   }
 
+  function selectedEventMode() {
+    return $("eventOptions").querySelector('input[name="eventType"]:checked')?.value || "all";
+  }
+
+  function eventModeLabel(mode = state.eventMode) {
+    return ({ all: "全部事件", full: "滿借事件", empty: "空還事件", both: "滿借＋空還同時成立" })[mode] || "全部事件";
+  }
+
   function eventMatchesQuery(origin, destination, query, scope) {
     if (!query) return true;
     if (scope === "origin") return origin.search.includes(query);
@@ -659,6 +677,7 @@
     const end = parseTime($("timeEnd").value, 1439);
     const query = normalizedText(state.query);
     const scope = state.searchScope;
+    const eventMode = state.eventMode;
     const result = [];
     const routeMap = new Map();
     const stationAwards = new Map();
@@ -681,8 +700,16 @@
       const fullMatch = Boolean(flags & 1) && timeInRange(borrowMinute, start, end) && cities.has(origin.city);
       const emptyMatch = Boolean(flags & 2) && timeInRange(returnMinute, start, end) && cities.has(destination.city);
       let visibleFlags = 0;
-      if (fullMatch) visibleFlags |= 1;
-      if (emptyMatch) visibleFlags |= 2;
+      if (eventMode === "full") {
+        if (fullMatch) visibleFlags = 1;
+      } else if (eventMode === "empty") {
+        if (emptyMatch) visibleFlags = 2;
+      } else if (eventMode === "both") {
+        if (flags === 3 && fullMatch && emptyMatch) visibleFlags = 3;
+      } else {
+        if (fullMatch) visibleFlags |= 1;
+        if (emptyMatch) visibleFlags |= 2;
+      }
       if (!visibleFlags || !eventMatchesQuery(origin, destination, query, scope)) continue;
 
       const rewardMinute = visibleFlags === 3 ? Math.min(borrowMinute, returnMinute) : visibleFlags === 1 ? borrowMinute : returnMinute;
@@ -745,7 +772,7 @@
     $("listTotal").textContent = numberFormat.format(summary.orderTotal);
 
     const queryText = state.query.trim() ? ` · 搜尋「${state.query.trim()}」` : "";
-    $("selectionCopy").textContent = `${citySelectionLabel()} · 獎勵時間 ${timeWindowLabel(summary.start, summary.end)} · ${numberFormat.format(summary.orderTotal)} 筆訂單${queryText}`;
+    $("selectionCopy").textContent = `${eventModeLabel()} · ${citySelectionLabel()} · 獎勵時間 ${timeWindowLabel(summary.start, summary.end)} · ${numberFormat.format(summary.orderTotal)} 筆訂單${queryText}`;
     $("selectionHint").textContent = summary.invalid
       ? `略過 ${numberFormat.format(summary.invalid)} 筆格式不完整資料；縣市依獎勵站判斷。`
       : "縣市依獎勵站判斷；跨午夜時段可直接選擇。";
@@ -899,6 +926,7 @@
 
   function resetFilters() {
     $("cityOptions").querySelectorAll('input[type="checkbox"]').forEach((input) => { input.checked = true; });
+    $("eventOptions").querySelector('input[value="all"]').checked = true;
     $("timeStart").value = "00:00";
     $("timeEnd").value = "23:59";
     $("stationSearch").value = "";
@@ -906,6 +934,7 @@
     $("clearSearch").classList.add("hidden");
     state.query = "";
     state.searchScope = "both";
+    state.eventMode = "all";
     state.selectedRawIndex = null;
     applyFilters({ fit: true });
   }
@@ -915,6 +944,10 @@
     $("previousDate").addEventListener("click", () => selectDate(state.dateIndex - 1, { fit: true }));
     $("nextDate").addEventListener("click", () => selectDate(state.dateIndex + 1, { fit: true }));
     $("cityOptions").addEventListener("change", () => applyFilters({ fit: true }));
+    $("eventOptions").addEventListener("change", () => {
+      state.eventMode = selectedEventMode();
+      applyFilters({ fit: true });
+    });
     $("timeStart").addEventListener("change", () => applyFilters());
     $("timeEnd").addEventListener("change", () => applyFilters());
     $("searchScope").addEventListener("change", (event) => {

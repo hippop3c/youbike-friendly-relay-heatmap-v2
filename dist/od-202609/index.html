@@ -8,7 +8,7 @@
   <title>九月友愛接力起訖地圖</title>
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="app.css?v=20261008-2">
+  <link rel="stylesheet" href="app.css?v=20261008-4">
 </head>
 <body>
   <div class="app-loading" id="appLoading" role="status" aria-live="polite">
@@ -39,6 +39,16 @@
       <div class="segmented" id="cityOptions">
         <label><input type="checkbox" value="台北市" checked><span>台北市</span></label>
         <label><input type="checkbox" value="新北市" checked><span>新北市</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="filter-group event-filter">
+      <legend>事件類型</legend>
+      <div class="segmented event-segmented" id="eventOptions">
+        <label><input type="radio" name="eventType" value="all" checked><span>全部</span></label>
+        <label><input type="radio" name="eventType" value="full"><span>滿借</span></label>
+        <label><input type="radio" name="eventType" value="empty"><span>空還</span></label>
+        <label><input type="radio" name="eventType" value="both"><span>同時成立</span></label>
       </div>
     </fieldset>
 
@@ -136,6 +146,6 @@
 
   <noscript>此互動地圖需要啟用 JavaScript。</noscript>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=20261008-2"></script>
+  <script src="app.js?v=20261008-4"></script>
 </body>
 </html>
