@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="九月友愛接力訂單起訖地圖，可依日期、獎勵發生時間、獎勵站縣市與起訖場站篩選。">
+  <meta name="theme-color" content="#102f4c">
+  <title>九月友愛接力起訖地圖</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="app.css?v=20261008-2">
+</head>
+<body>
+  <div class="app-loading" id="appLoading" role="status" aria-live="polite">
+    <div class="loading-card">
+      <span class="spinner" aria-hidden="true"></span>
+      <div><strong id="loadingTitle">準備地圖</strong><span id="loadingDetail">正在讀取資料索引…</span></div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><i></i><i></i><b>→</b></div>
+      <div class="brand-copy">
+        <p class="eyebrow">YOUBIKE FRIENDLY RELAY</p>
+        <h1 id="pageTitle">九月友愛接力起訖地圖</h1>
+        <p id="pageSubtitle">以獎勵發生時間呈現滿借與空還訂單流向</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="privacy-pill"><i aria-hidden="true">✓</i> 不含卡號與個資</span>
+      <span class="updated-copy" id="updatedCopy">等待資料</span>
+    </div>
+  </header>
+
+  <section class="filters" aria-label="地圖篩選條件">
+    <fieldset class="filter-group city-filter">
+      <legend>獎勵站縣市</legend>
+      <div class="segmented" id="cityOptions">
+        <label><input type="checkbox" value="台北市" checked><span>台北市</span></label>
+        <label><input type="checkbox" value="新北市" checked><span>新北市</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="filter-group date-filter">
+      <legend>資料日期</legend>
+      <div class="date-stepper">
+        <button id="previousDate" type="button" aria-label="前一天" title="前一天">‹</button>
+        <select id="dateSelect" aria-label="選擇資料日期"><option>載入中…</option></select>
+        <button id="nextDate" type="button" aria-label="後一天" title="後一天">›</button>
+      </div>
+    </fieldset>
+
+    <fieldset class="filter-group time-filter">
+      <legend>獎勵發生時間</legend>
+      <div class="time-range">
+        <label><span class="sr-only">開始時間</span><input id="timeStart" type="time" value="00:00" step="60"></label>
+        <i aria-hidden="true">至</i>
+        <label><span class="sr-only">結束時間</span><input id="timeEnd" type="time" value="23:59" step="60"></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="filter-group search-filter">
+      <legend>搜尋場站</legend>
+      <div class="search-box">
+        <span class="search-symbol" aria-hidden="true"></span>
+        <input id="stationSearch" type="search" autocomplete="off" placeholder="名稱、代碼或行政區">
+        <button id="clearSearch" class="clear-search hidden" type="button" aria-label="清除搜尋">×</button>
+      </div>
+      <select id="searchScope" aria-label="搜尋起點或終點">
+        <option value="both">起訖皆可</option>
+        <option value="origin">只看起點</option>
+        <option value="destination">只看終點</option>
+      </select>
+    </fieldset>
+
+    <button class="reset-button" id="resetFilters" type="button"><span aria-hidden="true">↺</span> 重設</button>
+  </section>
+
+  <section class="selection-bar" aria-live="polite">
+    <div class="selection-summary">
+      <strong id="selectionDate">—</strong>
+      <span id="selectionCopy">讀取單日資料中</span>
+    </div>
+    <div class="selection-hint" id="selectionHint">縣市依獎勵站判斷；跨午夜時段可直接選擇。</div>
+  </section>
+
+  <main class="workspace">
+    <section class="map-panel" aria-label="友愛接力起訖互動地圖">
+      <div id="map"></div>
+
+      <div class="map-stats" aria-label="篩選結果統計">
+        <div><span>訂單</span><strong id="orderCount">0</strong></div>
+        <div class="full-stat"><span>滿借獎勵</span><strong id="fullCount">0</strong></div>
+        <div class="empty-stat"><span>空還獎勵</span><strong id="emptyCount">0</strong></div>
+        <div><span>OD 組合</span><strong id="routeCount">0</strong></div>
+      </div>
+
+      <div class="legend-card">
+        <div class="legend-title"><strong>圖例</strong><span>獎勵站</span></div>
+        <div class="legend-row"><i class="legend-dot full"></i><span>滿借獎勵站（起點）</span></div>
+        <div class="legend-row"><i class="legend-dot empty"></i><span>空還獎勵站（終點）</span></div>
+        <div class="legend-row"><i class="legend-dot both"></i><span>兩種獎勵皆有</span></div>
+        <div class="legend-row"><i class="legend-line"></i><span>同 OD 線寬＝訂單筆數</span></div>
+        <p>點選圓點或路線可查看筆數；地圖聚合繪線，右側清單仍保留每筆訂單。</p>
+      </div>
+
+      <div class="map-message hidden" id="mapMessage" role="status"></div>
+      <div class="map-busy hidden" id="mapBusy" role="status"><span class="spinner"></span><b>載入單日事件…</b></div>
+    </section>
+
+    <aside class="event-panel" aria-label="友愛接力訂單清單">
+      <div class="event-head">
+        <div>
+          <p class="eyebrow">ORDER DETAIL</p>
+          <h2>事件清單</h2>
+        </div>
+        <div class="event-total"><strong id="listTotal">0</strong><span>筆訂單</span></div>
+      </div>
+
+      <div class="event-columns" aria-hidden="true">
+        <span>獎勵／時間</span><span>起點 → 終點</span>
+      </div>
+      <div class="event-list" id="eventList" aria-live="polite"></div>
+
+      <nav class="pagination" aria-label="事件清單分頁">
+        <button id="previousPage" type="button">上一頁</button>
+        <span id="pageCopy">第 1 / 1 頁</span>
+        <button id="nextPage" type="button">下一頁</button>
+      </nav>
+      <p class="privacy-note"><span aria-hidden="true">●</span> 僅顯示日期、分鐘、場站及獎勵類型；資料不含卡號、會員或可識別欄位。</p>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>此互動地圖需要啟用 JavaScript。</noscript>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js?v=20261008-2"></script>
+</body>
+</html>
